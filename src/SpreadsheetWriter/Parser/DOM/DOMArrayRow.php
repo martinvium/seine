@@ -24,6 +24,16 @@ final class DOMArrayRow extends DOMElement implements Row
     {
         return $this->cells;
     }
+    
+    /**
+     * @param array $cells
+     * @return DOMArrayRow 
+     */
+    public function setCells(array $cells)
+    {
+        $this->cells = $cells;
+        return $this;
+    }
 
     public function getStyle()
     {

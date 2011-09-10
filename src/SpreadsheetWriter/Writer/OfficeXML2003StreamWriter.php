@@ -8,6 +8,8 @@ use SpreadSheetWriter\Sheet;
 
 class OfficeXml2003StreamWriter implements Writer
 {
+    const EOL = "\r\n";
+    
     private $stream;
     
     public function __construct($stream)
@@ -21,14 +23,14 @@ class OfficeXml2003StreamWriter implements Writer
     
     public function startBook(Book $book)
     {
-        $this->writeStream('<?xml version="1.0"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook
-   xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-   xmlns:o="urn:schemas-microsoft-com:office:office"
-   xmlns:x="urn:schemas-microsoft-com:office:excel"
-   xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
-   xmlns:html="http://www.w3.org/TR/REC-html40">' . PHP_EOL);
+        $this->writeStream('<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" 
+          xmlns:c="urn:schemas-microsoft-com:office:component:spreadsheet" 
+          xmlns:html="http://www.w3.org/TR/REC-html40" 
+          xmlns:o="urn:schemas-microsoft-com:office:office" 
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" 
+          xmlns:x2="http://schemas.microsoft.com/office/excel/2003/xml" 
+          xmlns:x="urn:schemas-microsoft-com:office:excel" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' . self::EOL);
     }
     
     public function endBook(Book $book)
@@ -40,7 +42,7 @@ class OfficeXml2003StreamWriter implements Writer
     {
         $this->writeStyles($sheet->getStyles());
         $this->writeStream('    <Worksheet ss:Name="' . $sheet->getName() . '">
-        <Table x:FullColumns="1" x:FullRows="1">' . PHP_EOL);
+        <Table>' . self::EOL);
     }
     
     private function writeStyles(array $styles)
@@ -49,11 +51,11 @@ class OfficeXml2003StreamWriter implements Writer
             return;
         }
         
-        $out = '    <Styles>' . PHP_EOL;
-        
+        $out = '    <Styles>' . self::EOL;
+        $out .= '        <Style ss:ID="Default" ss:Name="Default"/>' . self::EOL;
         /* @var $style Style */
         foreach($styles as $style) {
-            $out .= '        <Style ss:ID="' . $style->getId() . '">' . PHP_EOL;
+            $out .= '        <Style ss:ID="' . $style->getId() . '" ss:Name="' . $style->getId() . '">' . self::EOL;
             $out .= '            <Font';
             if($style->getFontFamily()) {
                 $out .= ' x:Family="' . $style->getFontFamily() . '"';
@@ -61,66 +63,30 @@ class OfficeXml2003StreamWriter implements Writer
             if($style->getFontBold()) {
                 $out .= ' ss:Bold="1"';
             }
-            $out .= '/>' . PHP_EOL;
-            $out .= '        </Style>' . PHP_EOL;
+            $out .= '/>' . self::EOL;
+            $out .= '        </Style>' . self::EOL;
         }
-        $out .= '    </Styles>' . PHP_EOL;
+        $out .= '    </Styles>' . self::EOL;
         $this->writeStream($out);
     }
     
     public function endSheet(Sheet $sheet)
     {
         $this->writeStream('        </Table>
-        <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-            <Print>
-                <ValidPrinterInfo />
-                <HorizontalResolution>600</HorizontalResolution>
-                <VerticalResolution>600</VerticalResolution>
-            </Print>
-            <Selected />
-            <Panes>
-                <Pane>
-                    <Number>3</Number>
-                    <ActiveRow>5</ActiveRow>
-                    <ActiveCol>1</ActiveCol>
-                </Pane>
-            </Panes>
-            <ProtectObjects>False</ProtectObjects>
-            <ProtectScenarios>False</ProtectScenarios>
-        </WorksheetOptions>
-    </Worksheet>' . PHP_EOL);
+        <x:WorksheetOptions/>
+    </Worksheet>' . self::EOL);
     }
     
     public function writeRow(Row $row)
     {
+        $strStyle = ($row->getStyle() ? ' ss:StyleID="' . $row->getStyle()->getId() . '"' : '');
+        
         $out = '            <Row>';
         foreach($row->getCells() as $cell) {
-            $out .= '<Cell';
-            if($row->getStyle()) {
-                $out .= ' ss:StyleID="' . $row->getStyle()->getId() . '"';
-            }
-            $out .= '>';
-            
-            $out .= '<Data ss:Type="' . $this->formatType($cell) . '">';
-            $out .= $this->formatValue($cell);
-            $out .= '</Data></Cell>';
+            $out .= '<Cell' . $strStyle . '><Data ss:Type="' . (is_numeric($cell) ? 'Number' : 'String') . '">' . $cell . '</Data></Cell>';
         }
-        $out .= '</Row>' . PHP_EOL;
-        $this->writeStream($out);
-    }
-    
-    private function formatType($cell)
-    {
-        if(is_numeric($cell)) {
-            return 'Number';
-        } else {
-            return 'String';
-        }
-    }
-    
-    private function formatValue($cell)
-    {
-        return $cell;
+        
+        $this->writeStream($out . '</Row>' . self::EOL);
     }
     
     private function writeStream($data)
