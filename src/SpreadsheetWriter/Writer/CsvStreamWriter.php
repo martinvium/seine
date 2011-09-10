@@ -6,17 +6,19 @@ use SpreadSheetWriter\Row;
 use SpreadSheetWriter\Book;
 use SpreadSheetWriter\Sheet;
 
+/**
+ * @link http://tools.ietf.org/html/rfc4180
+ */
 class CsvStreamWriter implements Writer
 {
-    const ROW_DEL_WINDOWS = "\r\n";
-    const ROW_DEL_MACOS = "\r";
-    const ROW_DEL_UNIX = "\n";
+    const CRLF = "\r\n";
     
-    const COLUMN_DEL_DEFAULT = ";";
+    const FIELD_DEL_DEFAULT = ",";
+    const TEXT_DEL_DEFAULT = '"';
     
-    private $rowDelimiter = self::ROW_DEL_WINDOWS;
-    private $fieldDelimiter = self::COLUMN_DEL_DEFAULT;
-    private $textDelimiter = '"';
+    private $rowDelimiter = self::CRLF;
+    private $fieldDelimiter = self::FIELD_DEL_DEFAULT;
+    private $textDelimiter = self::TEXT_DEL_DEFAULT;
     
     private $stream;
     
@@ -66,17 +68,18 @@ class CsvStreamWriter implements Writer
     
     public function writeRow(Row $row)
     {
-        $paddedCells = array_map(array($this, 'padCell'), $row->getCells());
+        $paddedCells = array_map(array($this, 'quote'), $row->getCells());
         $this->writeStream(implode($this->fieldDelimiter, $paddedCells) . $this->rowDelimiter);
-    }
-    
-    private function padCell($val)
-    {
-        return $this->textDelimiter . $val . $this->textDelimiter;
     }
     
     private function writeStream($data)
     {
         fwrite($this->stream, $data);
+    }
+    
+    private function quote($string)
+    {
+        $escapedString = str_replace($this->textDelimiter, $this->textDelimiter . $this->textDelimiter, $string);
+        return $this->textDelimiter . $escapedString . $this->textDelimiter;
     }
 }

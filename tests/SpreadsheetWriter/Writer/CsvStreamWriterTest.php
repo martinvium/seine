@@ -26,11 +26,11 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         
         $book = $this->makeBookWithWriter($fp);
         $sheet = $book->addSheetByName('more1');
-        for($i = 0; $i < 100; $i++) {
+        for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
-                'cell2',
-                'cell3',
+                'cell"2',
+                'cæøå3',
                 'cell4'
             )));
         }
@@ -49,17 +49,17 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         
         $book = $this->factory->getBook();
         $writer = $this->factory->getWriterFactory()->getCsvStreamWriter($fp);
-        $writer->setFieldDelimiter(',');
+        $writer->setFieldDelimiter(';');
         $writer->setTextDelimiter("'");
         $writer->setRowDelimiter('NEWROW');
         $book->setWriter($writer);
         $sheet = $book->addSheetByName('more1');
-        for($i = 0; $i < 100; $i++) {
+        for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
-                'cell2',
-                'cell3',
-                'cell4'
+                'ce"2',
+                'cæøå3',
+                'ce\'4'
             )));
         }
         $book->close();

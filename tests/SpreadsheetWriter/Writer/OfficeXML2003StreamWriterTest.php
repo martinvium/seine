@@ -26,22 +26,22 @@ class OfficeXML2003StreamWriterTest extends \PHPUnit_Framework_TestCase
         
         $book = $this->makeBookWithWriter($fp);
         $sheet = $book->addSheetByName('more1');
-        for($i = 0; $i < 100; $i++) {
+        for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
-                'cell2',
-                'cell3',
+                'cell"2',
+                'cell</Cell>3',
                 'cell4'
             )));
         }
 
-        $sheet = $book->addSheetByName('more2');
+        $sheet = $book->addSheetByName('mor"e2');
         $style = $sheet->addStyleById('mystyle')->setFontBold(true);
         $sheet->addRow($this->factory->getRow(array('head1', 'head2', 'head3', 'head4'))->setStyle($style));
-        for($i = 0; $i < 1000; $i++) {
+        for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
-                'cell2',
+                'ceæøåll2',
                 rand(100, 10000),
                 'cell4'
             )));
@@ -52,13 +52,13 @@ class OfficeXML2003StreamWriterTest extends \PHPUnit_Framework_TestCase
         $actual = file_get_contents($actual_file);
         $this->assertSelectCount('Workbook Styles Style', 2, $actual, 'default style + one custom style');
         $this->assertSelectCount('Workbook Worksheet', 2, $actual, 'total number of sheets');
-        $this->assertSelectCount('Workbook Worksheet Table Row', 1101, $actual, 'total number of rows');
+        $this->assertSelectCount('Workbook Worksheet Table Row', 21, $actual, 'total number of rows');
     }
     
     public function testLargeNumberOfRowsDoesNotImpedeMemory()
     {
         $memory_limit = 20 * 1000 * 1000; // 20 MB
-        $time_limit_seconds = 3.0; // 3 seconds
+        $time_limit_seconds = 5.0; // 5 seconds
         $num_rows = 10000;
         $num_columns = 100;
         

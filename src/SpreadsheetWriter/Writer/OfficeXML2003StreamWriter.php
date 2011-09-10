@@ -8,6 +8,7 @@ use SpreadSheetWriter\Sheet;
 
 class OfficeXml2003StreamWriter implements Writer
 {
+    const CHARSET = 'utf-8';
     const EOL = "\r\n";
     
     private $stream;
@@ -23,6 +24,7 @@ class OfficeXml2003StreamWriter implements Writer
     
     public function startBook(Book $book)
     {
+        $this->writeStream('<?xml version="1.0" encoding="' . self::CHARSET . '"?>' . self::EOL);
         $this->writeStream('<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" 
           xmlns:c="urn:schemas-microsoft-com:office:component:spreadsheet" 
           xmlns:html="http://www.w3.org/TR/REC-html40" 
@@ -41,7 +43,7 @@ class OfficeXml2003StreamWriter implements Writer
     public function startSheet(Sheet $sheet)
     {
         $this->writeStyles($sheet->getStyles());
-        $this->writeStream('    <Worksheet ss:Name="' . $sheet->getName() . '">
+        $this->writeStream('    <Worksheet ss:Name="' . $this->escape($sheet->getName()) . '">
         <Table>' . self::EOL);
     }
     
@@ -55,10 +57,10 @@ class OfficeXml2003StreamWriter implements Writer
         $out .= '        <Style ss:ID="Default" ss:Name="Default"/>' . self::EOL;
         /* @var $style Style */
         foreach($styles as $style) {
-            $out .= '        <Style ss:ID="' . $style->getId() . '" ss:Name="' . $style->getId() . '">' . self::EOL;
+            $out .= '        <Style ss:ID="' . $this->escape($style->getId()) . '" ss:Name="' . $this->escape($style->getId()) . '">' . self::EOL;
             $out .= '            <Font';
             if($style->getFontFamily()) {
-                $out .= ' x:Family="' . $style->getFontFamily() . '"';
+                $out .= ' x:Family="' . $this->escape($style->getFontFamily()) . '"';
             }
             if($style->getFontBold()) {
                 $out .= ' ss:Bold="1"';
@@ -79,14 +81,19 @@ class OfficeXml2003StreamWriter implements Writer
     
     public function writeRow(Row $row)
     {
-        $strStyle = ($row->getStyle() ? ' ss:StyleID="' . $row->getStyle()->getId() . '"' : '');
+        $strStyle = ($row->getStyle() ? ' ss:StyleID="' . $this->escape($row->getStyle()->getId()) . '"' : '');
         
         $out = '            <Row>';
         foreach($row->getCells() as $cell) {
-            $out .= '<Cell' . $strStyle . '><Data ss:Type="' . (is_numeric($cell) ? 'Number' : 'String') . '">' . $cell . '</Data></Cell>';
+            $out .= '<Cell' . $strStyle . '><Data ss:Type="' . (is_numeric($cell) ? 'Number' : 'String') . '">' . $this->escape($cell) . '</Data></Cell>';
         }
         
         $this->writeStream($out . '</Row>' . self::EOL);
+    }
+    
+    private function escape($string)
+    {
+        return htmlspecialchars($string, ENT_QUOTES, 'utf-8');
     }
     
     private function writeStream($data)
