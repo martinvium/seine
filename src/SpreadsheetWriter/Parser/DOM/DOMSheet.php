@@ -18,6 +18,21 @@ final class DOMSheet extends DOMElement implements Sheet
     
     private $styles = array();
     
+    private $id;
+    
+    public function getId()
+    {
+        return $this->id;
+    }
+    
+    /**
+     * @internal assigned by Book
+     */
+    public function setId($id)
+    {
+        $this->id = (int)$id;
+    }
+    
     /**
      * @internal we do not store anything but the last row
      * @param Row $row 

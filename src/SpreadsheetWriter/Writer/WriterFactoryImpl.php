@@ -2,6 +2,7 @@
 namespace SpreadSheetWriter\Writer;
 
 use SpreadSheetWriter\WriterFactory;
+use SpreadSheetWriter\ZipArchiveCompressor;
 
 class WriterFactoryImpl implements WriterFactory
 {
@@ -11,7 +12,8 @@ class WriterFactoryImpl implements WriterFactory
      */
     public function getOfficeOpenXML2007StreamWriter($stream)
     {
-        return new OfficeOpenXML2007StreamWriter($stream);
+        $compressor = new ZipArchiveCompressor;
+        return new OfficeOpenXML2007StreamWriter($stream, $compressor);
     }
     
     /**

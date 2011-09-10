@@ -8,4 +8,14 @@ interface Sheet
     public function getName();
     
     public function getStyles();
+    
+    /**
+     * Sheet unique numeric id
+     */
+    public function getId();
+    
+    /**
+     * @internal assigned by Book
+     */
+    public function setId($id);
 }

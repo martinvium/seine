@@ -3,11 +3,17 @@ namespace SpreadSheetWriter\Writer;
 
 use SpreadSheetWriter\Writer;
 use SpreadSheetWriter\IOException;
+use SpreadSheetWriter\Compressor;
 
 abstract class OfficeOpenXML2007Base implements Writer
 {
     const APP_NAME = 'SpreadSheetWriter';
     const EOL = "\r\n";
+    
+    /**
+     * @var Compressor
+     */
+    private $compressor;
     
     private $workingFiles = array();
     
@@ -16,14 +22,16 @@ abstract class OfficeOpenXML2007Base implements Writer
     protected $baseDir;
     protected $dataDir;
     protected $sheetDir;
+    protected $dataRelsDir;
     
-    public function __construct($stream)
+    public function __construct($stream, Compressor $compressor)
     {
         if(! is_resource($stream)) {
             throw new \InvalidArgumentException('fp is not a valid stream resource');
         }
         
         $this->stream = $stream;
+        $this->compressor = $compressor;
         $this->tempDir = sys_get_temp_dir();
     }
     
@@ -35,11 +43,17 @@ abstract class OfficeOpenXML2007Base implements Writer
     protected function createBaseStructure()
     {
         $this->createBaseDir();
-        $this->createContentTypesFile();
-        $this->createRelsFile();
+        $this->createRelationsFile();
         $this->createDocPropFiles();
         $this->createDataDir();
         $this->createSheetDir();
+        $this->createDataRelsDir();
+    }
+    
+    private function createDataRelsDir()
+    {
+        $this->dataRelsDir = $this->dataDir . DIRECTORY_SEPARATOR . '_rels';
+        $this->createWorkingDir($this->dataRelsDir);
     }
     
     private function createDataDir()
@@ -60,22 +74,17 @@ abstract class OfficeOpenXML2007Base implements Writer
         $this->createWorkingDir($this->baseDir);
     }
     
-    protected function createContentTypesFile()
-    {
-        $contentTypesFile = $this->baseDir . DIRECTORY_SEPARATOR . '[Content_Types].xml';
-        $this->createWorkingFile($contentTypesFile, '<?xml version="1.0" encoding="UTF-8"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Override PartName="/_rels/.rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/xl/_rels/workbook.xml.rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
-</Types>');
-    }
-    
-    protected function createRelsFile()
+    private function createRelationsFile()
     {
         $relsDir = $this->baseDir . DIRECTORY_SEPARATOR . '_rels';
         $this->createWorkingDir($relsDir);
         
-        $relsFile = $relsDir . DIRECTORY_SEPARATOR . '.rels';
-        $this->createWorkingFile($relsFile, '<?xml version="1.0" encoding="UTF-8"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officedocument/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+        $relationsFile = $relsDir . DIRECTORY_SEPARATOR . '.rels';
+        $this->createWorkingFile($relationsFile, '<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officedocument/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+    <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
 </Relationships>');
     }
     
@@ -98,12 +107,12 @@ abstract class OfficeOpenXML2007Base implements Writer
     <cp:revision>0</cp:revision>
 </cp:coreProperties>');
     }
-
+    
     protected function zipWorkingFiles()
     {
-        
+        $this->compressor->compressDir($this->baseDir, $this->baseDir . '.zip');
     }
-    
+
     protected function copyZipToStream()
     {
         

@@ -44,6 +44,7 @@ final class DOMBook extends DOMElement implements Book
      */
     public function addSheet(Sheet $sheet)
     {
+        $sheet->setId(count($this->sheets));
         $this->startBook();
         
         if($this->lastSheet) {
