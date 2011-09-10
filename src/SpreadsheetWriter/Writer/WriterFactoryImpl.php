@@ -14,4 +14,9 @@ class WriterFactoryImpl implements WriterFactory
     {
         return new OfficeXml2003StreamWriter($stream);
     }
+    
+    public function getCsvStreamWriter($stream)
+    {
+        return new CsvStreamWriter($stream);
+    }
 }
