@@ -14,6 +14,8 @@ abstract class OfficeOpenXML2007Base implements Writer
     protected $stream;
     protected $tempDir;
     protected $baseDir;
+    protected $dataDir;
+    protected $sheetDir;
     
     public function __construct($stream)
     {
@@ -28,6 +30,28 @@ abstract class OfficeOpenXML2007Base implements Writer
     public function setTempDir($dir)
     {
         $this->tempDir = $dir;
+    }
+    
+    protected function createBaseStructure()
+    {
+        $this->createBaseDir();
+        $this->createContentTypesFile();
+        $this->createRelsFile();
+        $this->createDocPropFiles();
+        $this->createDataDir();
+        $this->createSheetDir();
+    }
+    
+    private function createDataDir()
+    {
+        $this->dataDir = $this->baseDir . DIRECTORY_SEPARATOR . 'xl';
+        $this->createWorkingDir($this->dataDir);
+    }
+    
+    private function createSheetDir()
+    {
+        $this->sheetDir = $this->dataDir . DIRECTORY_SEPARATOR . 'worksheets';
+        $this->createWorkingDir($this->sheetDir);
     }
     
     protected function createBaseDir()
@@ -100,11 +124,6 @@ abstract class OfficeOpenXML2007Base implements Writer
                 }
             }
         }
-    }
-    
-    protected function writeStream($data)
-    {
-        fwrite($this->stream, $data);
     }
     
     protected function createWorkingDir($dir)
