@@ -115,7 +115,12 @@ abstract class OfficeOpenXML2007Base implements Writer
 
     protected function copyZipToStream()
     {
-        
+        $source = fopen($this->baseDir . '.zip', 'r');
+        stream_copy_to_stream($source, $this->stream);
+        fclose($source);
+        if(! unlink($this->baseDir . '.zip')) {
+            throw new IOException('failed to clean up file: ' . $source);
+        }
     }
     
     protected function cleanWorkingFiles()

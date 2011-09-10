@@ -20,7 +20,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
     
     public function testMultipleSheetsWithStyles()
     {
-        $actual_file = __DIR__ . '/_files/actual_valid.xml';
+        $actual_file = __DIR__ . '/_files/actual_valid.xlsx';
         
         $fp = $this->makeStream($actual_file);
         
@@ -48,6 +48,30 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         }
         $book->close();
         fclose($fp);
+    }
+    
+    public function testLargeNumberOfRowsDoesNotImpedeMemory()
+    {
+        $memory_limit = 20 * 1000 * 1000; // 20 MB
+        $time_limit_seconds = 5.0; // 5 seconds
+        $num_rows = 10000;
+        $num_columns = 25;
+        
+        $start_timestamp = microtime(true);
+        $actual_file = __DIR__ . '/_files/performance.xlsx';
+        
+        $fp = $this->makeStream($actual_file);
+        
+        $book = $this->makeBookWithWriter($fp);
+        $sheet = $book->addSheetByName('more1');
+        for($i = 0; $i < $num_rows; $i++) {
+            $sheet->addRow($this->factory->getRow(range(0, $num_columns)));
+        }
+        $book->close();
+        fclose($fp);
+        
+        $this->assertLessThan($memory_limit, memory_get_peak_usage(true), 'memory limit reached');
+        $this->assertLessThan($time_limit_seconds, (microtime(true) - $start_timestamp), 'time limit reached');
     }
     
     private function makeStream($filename)
