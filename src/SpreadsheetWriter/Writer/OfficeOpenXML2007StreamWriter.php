@@ -26,16 +26,40 @@ use SpreadSheetWriter\Row;
 use SpreadSheetWriter\Book;
 use SpreadSheetWriter\Sheet;
 use SpreadSheetWriter\Style;
+use SpreadSheetWriter\Writer\OfficeOpenXML2007\WriterBase;
+use SpreadSheetWriter\Writer\OfficeOpenXML2007\SharedStringsHelper;
 
-final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
+final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
-    private $sheetStream;
+    const FONT_FAMILY_DEFAULT = 'Arial';
+    const FONT_SIZE_DEFAULT = 10;
     
+    private $sheetStream;
     private $rowId = 0;
+    
+    /**
+     * @var Style
+     */
+    private $defaultStyle;
+
+    /**
+     * @var SharedStringsHelper
+     */
+    private $sharedStrings;
     
     public function startBook(Book $book)
     {
         $this->createBaseStructure();
+        $this->defaultStyle = $book->newStyle();
+        $this->startSharedStrings();
+    }
+
+    private function startSharedStrings()
+    {
+        $sharedStringsFile = $this->dataDir . DIRECTORY_SEPARATOR . 'sharedStrings.xml';
+        $sharedStringsStream = $this->createWorkingStream($sharedStringsFile);
+        $this->sharedStrings = new SharedStringsHelper($sharedStringsStream);
+        $this->sharedStrings->start();
     }
     
     public function startSheet(Book $book, Sheet $sheet)
@@ -55,10 +79,12 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
         $out = '        <row>' . self::EOL;
         foreach($row->getCells() as $cell) {
             $out .= '            <c r="' . $columnId . $rowId . '"';
+            $out .= ' s="' . ($row->getStyle() ? $row->getStyle()->getId() : $this->defaultStyle->getId()) . '"';
             if(is_numeric($cell)) {
                 $out .= '><v>' . $cell . '</v></c>' . self::EOL;
             } else {
-                $out .= ' t="s"><v>' . $this->escape($cell) . '</v></c>' . self::EOL;
+                $sharedStringId = $this->sharedStrings->writeString($this->escape($cell));
+                $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . self::EOL;
             }
             $columnId++;
         }
@@ -75,6 +101,7 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
     
     public function endBook(Book $book)
     {
+        $this->sharedStrings->end();
         $this->createBookFile($book->getSheets());
         $this->createStylesFile($book->getStyles());
         $this->createDataRelationsFile($book->getSheets());
@@ -114,9 +141,9 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
             $data .= '    <Override PartName="/xl/worksheets/sheet' . $sheet->getId() . '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' . self::EOL;
         }
         
-        $data .= '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
-    <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+        $data .= '    <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
     <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+    <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
     <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
     <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
 </Types>';
@@ -162,17 +189,15 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
     
     private function buildStyleFonts(array $styles)
     {
-        $data = '    <fonts count="' . count($styles) . '">';
+        $data = '    <fonts count="' . count($styles) . '">' . self::EOL;
         foreach($styles as $style) {
-            $data .= '        <font>';
-            if($style->getFontFamily()) {
-                $data .= '            <name val="Arial"/>' . self::EOL;
-                $data .= '            <family val="2"/>' . self::EOL;
+            $data .= '        <font>' . self::EOL;
+            if($style->getFontBold()) {
+                $data .= '            <b/>' . self::EOL;
             }
-
-            if($style->getFontSize()) {
-                 $data .= '            <sz val="' . $style->getFontSize() . '"/>';
-            }
+            $data .= '            <sz val="' . ($style->getFontSize() ? $style->getFontSize() : self::FONT_SIZE_DEFAULT) . '"/>' . self::EOL;
+            $data .= '            <name val="' . ($style->getFontFamily() ? $style->getFontFamily() : self::FONT_FAMILY_DEFAULT) . '"/>' . self::EOL;
+            $data .= '            <family val="2"/>' . self::EOL; // no clue why this needs to be there
             $data .= '        </font>' . self::EOL;
         }
         $data .= '    </fonts>' . self::EOL;
@@ -182,13 +207,12 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
     private function buildStyleCellXfs(array $styles)
     {
         $i = 0;
-        $data = '<cellXfs count="' . count($styles) . '">';
+        $data = '    <cellXfs count="' . count($styles) . '">' . self::EOL;
         foreach($styles as $style) {
-            $applyFont = ($style->getFontFamily() || $style->getFontSize() ? 'true' : 'false');
-            $data .= '<xf fontId="' . $i . ' applyFont="' . $applyFont . '></xf>';
+            $data .= '        <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>' . self::EOL;
             $i++;
         }
-        $data .= '</cellXfs>';
+        $data .= '    </cellXfs>' . self::EOL;
         return $data;
     }
 }

@@ -28,6 +28,7 @@ use SpreadSheetWriter\Writer;
 
 final class DOMBook extends DOMElement implements Book
 {
+    private $sheetId = 1;
     private $sheets = array();
     
     /**
@@ -68,7 +69,7 @@ final class DOMBook extends DOMElement implements Book
     public function addSheet(Sheet $sheet)
     {
         $sheet->setBook($this);
-        $sheet->setId(count($this->sheets));
+        $sheet->setId($this->sheetId++);
         $this->startBook();
         
         if($this->lastSheet) {
@@ -90,7 +91,7 @@ final class DOMBook extends DOMElement implements Book
      */
     public function newStyle()
     {
-        $style = $this->factory->getStyle('s' . count($this->styles));
+        $style = $this->factory->getStyle(count($this->styles));
         $this->styles[] = $style;
         return $style;
     }
