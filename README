@@ -20,7 +20,7 @@ WRITERS
 
     * Office Open XML Spreadsheet (.xlsx)
     * Microsoft Excel 2003 XML (.xml)
-    * CSV
+    * CSV (.csv)
 
 EXAMPLE
 
@@ -46,3 +46,9 @@ EXAMPLE
         $book = $factory->getBook();
         $style = $book->addStyleById('style1')->setFontBold(true);
         $sheet->addRow($factory->getRow($row)->setStyle($style));
+
+    Custom Compressor for OOXML
+
+        class MyCompressor implements Spreadsheet\Compressor {}
+        $compressor = new MyCompressor;
+        $writer = new SpreadsheetWriter\Writer\OfficeOpenXML2007StreamWriter($fp, $compressor);
