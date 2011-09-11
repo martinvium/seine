@@ -36,7 +36,7 @@ final class DOMStyle implements Style
     public function __construct(Factory $factory, $id)
     {
         $this->factory = $factory;
-        $this->id = $id;
+        $this->id = (int)$id;
     }
 
     public function getId()

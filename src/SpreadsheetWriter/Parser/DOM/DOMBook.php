@@ -42,7 +42,8 @@ final class DOMBook extends DOMElement implements Book
     private $writer;
    
     private $started = false;
-    
+
+    private $styleId = 0;
     private $styles = array();
     
     public function setWriter(Writer $writer)
@@ -91,7 +92,7 @@ final class DOMBook extends DOMElement implements Book
      */
     public function newStyle()
     {
-        $style = $this->factory->getStyle(count($this->styles));
+        $style = $this->factory->getStyle($this->styleId++);
         $this->styles[] = $style;
         return $style;
     }
