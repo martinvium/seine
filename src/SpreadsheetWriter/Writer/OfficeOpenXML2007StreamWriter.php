@@ -29,6 +29,7 @@ use SpreadSheetWriter\Style;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\WriterBase;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\SharedStringsHelper;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\StylesHelper;
+use SpreadSheetWriter\Writer\OfficeOpenXML2007\SheetHelper;
 
 final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
@@ -47,6 +48,11 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
      * @var SharedStringsHelper
      */
     private $sharedStrings;
+
+    /**
+     * @var SheetHelper[]
+     */
+    private $sheetHelpers = array();
     
     public function startBook(Book $book)
     {
@@ -57,47 +63,29 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
 
     private function startSharedStrings()
     {
-        $sharedStringsFile = $this->dataDir . DIRECTORY_SEPARATOR . 'sharedStrings.xml';
-        $sharedStringsStream = $this->createWorkingStream($sharedStringsFile);
-        $this->sharedStrings = new SharedStringsHelper($sharedStringsStream);
+        $filename = $this->dataDir . DIRECTORY_SEPARATOR . 'sharedStrings.xml';
+        $this->createEmptyWorkingFile($filename);
+        $this->sharedStrings = new SharedStringsHelper($filename);
         $this->sharedStrings->start();
     }
     
     public function startSheet(Book $book, Sheet $sheet)
     {
-        $sheetFile = $this->sheetDir . DIRECTORY_SEPARATOR . 'sheet' . $sheet->getId() . '.xml';
-        $this->sheetStream = $this->createWorkingStream($sheetFile);
-        fwrite($this->sheetStream, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' . self::EOL);
-        fwrite($this->sheetStream, '    <sheetData>' . self::EOL);
-        $this->rowId = 0;
+        $filename = $this->sheetDir . DIRECTORY_SEPARATOR . 'sheet' . $sheet->getId() . '.xml';
+        $this->createEmptyWorkingFile($filename);
+        $sheetHelper = new SheetHelper($sheet, $this->sharedStrings, $this->defaultStyle, $filename);
+        $sheetHelper->start();
+        $this->sheetHelpers[$sheet->getId()] = $sheetHelper;
     }
     
     public function writeRow(Sheet $sheet, Row $row)
     {
-        $columnId = 'A';
-        $rowId = ++$this->rowId;
-        $out = '        <row>' . self::EOL;
-        foreach($row->getCells() as $cell) {
-            $out .= '            <c r="' . $columnId . $rowId . '"';
-            $out .= ' s="' . ($row->getStyle() ? $row->getStyle()->getId() : $this->defaultStyle->getId()) . '"';
-            if(is_numeric($cell)) {
-                $out .= '><v>' . $cell . '</v></c>' . self::EOL;
-            } else {
-                $sharedStringId = $this->sharedStrings->writeString($this->escape($cell));
-                $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . self::EOL;
-            }
-            $columnId++;
-        }
-        
-        fwrite($this->sheetStream, $out . '        </row>' . self::EOL);
+        $this->sheetHelpers[$sheet->getId()]->writeRow($row);
     }
     
     public function endSheet(Book $book, Sheet $sheet)
     {
-        fwrite($this->sheetStream, '    </sheetData>' . self::EOL);
-        fwrite($this->sheetStream, '</worksheet>');
-        fclose($this->sheetStream);
+        $this->sheetHelpers[$sheet->getId()]->end();
     }
     
     public function endBook(Book $book)
@@ -109,7 +97,7 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
         $this->createContentTypesFile($book->getSheets());
         $this->zipWorkingFiles();
         $this->copyZipToStream();
-//        $this->cleanWorkingFiles();
+        $this->cleanWorkingFiles();
     }
     
     private function createDataRelationsFile(array $sheets)

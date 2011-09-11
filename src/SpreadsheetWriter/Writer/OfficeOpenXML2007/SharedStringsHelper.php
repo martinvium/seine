@@ -2,24 +2,27 @@
 namespace SpreadSheetWriter\Writer\OfficeOpenXML2007;
 
 use SpreadSheetWriter\Writer\OfficeOpenXML2007StreamWriter as MyWriter;
+use SpreadSheetWriter\IOException;
 
 final class SharedStringsHelper
 {
+    private $filename;
     private $id = 0;
     private $stream;
     private $headerInsertPosition;
     
-    public function __construct($stream)
+    public function __construct($filename)
     {
-        if(! is_resource($stream)) {
-            throw new \InvalidArgumentException('fp is not a valid stream resource');
-        }
-        
-        $this->stream = $stream;
+        $this->filename = $filename;
     }
     
     public function start()
     {
+        $this->stream = fopen($this->filename, 'w');
+        if(! $this->stream) {
+            throw new IOException('failed to open stream: ' . $this->filename);
+        }
+
         // NOTE: we leave extra space, so we can fseek and put in the correct count and uniqueCount later
         $firstPartOfHeader = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . MyWriter::EOL . '<sst';
         $this->headerInsertPosition = strlen($firstPartOfHeader);
@@ -34,7 +37,7 @@ final class SharedStringsHelper
      */
     public function writeString($string)
     {
-        fwrite($this->stream, '    <si><t>' . $string . '</t></si>' . MyWriter::EOL);
+        fwrite($this->stream, '    <si><t>' . Utils::escape($string) . '</t></si>' . MyWriter::EOL);
         return $this->id++;
     }
     

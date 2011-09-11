@@ -32,11 +32,6 @@ final class DOMBook extends DOMElement implements Book
     private $sheets = array();
     
     /**
-     * @var Sheet
-     */
-    private $lastSheet = null;
-    
-    /**
      * @var Writer
      */
     private $writer;
@@ -73,13 +68,9 @@ final class DOMBook extends DOMElement implements Book
         $sheet->setId($this->sheetId++);
         $this->startBook();
         
-        if($this->lastSheet) {
-            $this->lastSheet->close();
-        }
-        
         $sheet->setWriter($this->writer);
         
-        return $this->lastSheet = $this->sheets[] = $sheet;
+        return $this->sheets[] = $sheet;
     }
     
     public function getSheets()
@@ -121,10 +112,10 @@ final class DOMBook extends DOMElement implements Book
     
     public function close()
     {
-        if($this->lastSheet) {
-            $this->lastSheet->close();
+        foreach($this->getSheets() as $sheet) {
+            $sheet->close();
         }
-        
+
         if($this->started) {
             $this->writer->endBook($this);
         }

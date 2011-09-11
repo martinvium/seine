@@ -172,7 +172,15 @@ abstract class WriterBase implements Writer
     {
         $this->workingFiles[] = $filename;
         if(! file_put_contents($filename, $data)) {
-            throw new IOException('failed to create file: ' . $filename);
+            throw new IOException('failed to create file and put data: ' . $filename);
+        }
+    }
+
+    protected function createEmptyWorkingFile($filename)
+    {
+        $this->workingFiles[] = $filename;
+        if(! touch($filename)) {
+            throw new IOException('failed to create empty file: ' . $filename);
         }
     }
     
@@ -184,6 +192,6 @@ abstract class WriterBase implements Writer
     
     protected function escape($string)
     {
-        return htmlspecialchars($string, ENT_QUOTES, 'utf-8');
+        return Utils::escape($string);
     }
 }

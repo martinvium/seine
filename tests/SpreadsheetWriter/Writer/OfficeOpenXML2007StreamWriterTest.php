@@ -70,6 +70,29 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $book->close();
         fclose($fp);
     }
+
+    public function testNonLinearSheetAddingOfRows()
+    {
+        $actual_file = __DIR__ . '/_files/multi_sheet_write.xlsx';
+
+        $fp = $this->makeStream($actual_file);
+
+        $book = $this->makeBookWithWriter($fp);
+        $sheet1 = $book->addSheetByName('s1');
+        $sheet2 = $book->addSheetByName('s2');
+        for($i = 0; $i < 10; $i++) {
+            $sheet1->addRow($this->factory->getRow(range(0, 10)));
+        }
+        for($i = 0; $i < 10; $i++) {
+            $sheet2->addRow($this->factory->getRow(range(0, 10)));
+        }
+        for($i = 0; $i < 10; $i++) {
+            $sheet1->addRow($this->factory->getRow(range(0, 10)));
+        }
+        
+        $book->close();
+        fclose($fp);
+    }
     
     public function testWriteSpeedAndMemoryUsage()
     {
