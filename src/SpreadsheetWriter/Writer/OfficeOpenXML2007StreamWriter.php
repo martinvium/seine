@@ -72,7 +72,7 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
         $this->rowId = 0;
     }
     
-    public function writeRow(Row $row)
+    public function writeRow(Sheet $sheet, Row $row)
     {
         $columnId = 'A';
         $rowId = ++$this->rowId;
