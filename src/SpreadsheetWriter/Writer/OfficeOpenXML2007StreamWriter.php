@@ -33,12 +33,6 @@ use SpreadSheetWriter\Writer\OfficeOpenXML2007\SheetHelper;
 
 final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
-    const FONT_FAMILY_DEFAULT = 'Arial';
-    const FONT_SIZE_DEFAULT = 10;
-    
-    private $sheetStream;
-    private $rowId = 0;
-    
     /**
      * @var Style
      */

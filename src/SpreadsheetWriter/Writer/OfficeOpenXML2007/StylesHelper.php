@@ -5,6 +5,9 @@ use SpreadSheetWriter\Writer\OfficeOpenXML2007StreamWriter as MyWriter;
 
 final class StylesHelper
 {
+    const FONT_FAMILY_DEFAULT = 'Arial';
+    const FONT_SIZE_DEFAULT = 10;
+
     public function render(array $styles)
     {
         $data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -26,8 +29,8 @@ final class StylesHelper
             if($style->getFontBold()) {
                 $data .= '            <b/>' . MyWriter::EOL;
             }
-            $data .= '            <sz val="' . ($style->getFontSize() ? $style->getFontSize() : MyWriter::FONT_SIZE_DEFAULT) . '"/>' . MyWriter::EOL;
-            $data .= '            <name val="' . ($style->getFontFamily() ? $style->getFontFamily() : MyWriter::FONT_FAMILY_DEFAULT) . '"/>' . MyWriter::EOL;
+            $data .= '            <sz val="' . ($style->getFontSize() ? $style->getFontSize() : self::FONT_SIZE_DEFAULT) . '"/>' . MyWriter::EOL;
+            $data .= '            <name val="' . ($style->getFontFamily() ? $style->getFontFamily() : self::FONT_FAMILY_DEFAULT) . '"/>' . MyWriter::EOL;
             $data .= '            <family val="2"/>' . MyWriter::EOL; // no clue why this needs to be there
             $data .= '        </font>' . MyWriter::EOL;
         }
