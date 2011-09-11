@@ -2,3 +2,10 @@
 nbproject/
 #ignore thumbnails created by windows
 Thumbs.db
+/tests/SpreadsheetWriter/Writer/_files/performance.csv
+/tests/SpreadsheetWriter/Writer/_files/actual_valid.csv
+/tests/SpreadsheetWriter/Writer/_files/actual_valid.xml
+/tests/SpreadsheetWriter/Writer/_files/actual_custom_delimiters.csv
+/tests/SpreadsheetWriter/Writer/_files/performance.xml
+/tests/SpreadsheetWriter/Writer/_files/actual_valid.xlsx
+/tests/SpreadsheetWriter/Writer/_files/performance.xlsx

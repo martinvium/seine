@@ -1,0 +1,48 @@
+    Spreadsheet Writer for PHP
+
+DESCRIPTION
+
+    Low memory, high performance library for writing large spreadsheets in various standard formats. 
+    Only a small subset of features are included, which means row level styling and right now, no 
+    formulas either.
+
+    Memory: Everything is written to disk, so memory overhead is pretty much zero.
+    Speed:  It's pretty damn fast! However because of the memory constraint, it's not mindblowing.
+
+    Note: This is still only ALPHA/BETA quality.
+
+REQUIREMENTS
+
+    * PHP 5.3
+    * ZipArchive (only OOXML and you can create your own zip compressor, if you prefer another solution)
+
+WRITERS
+
+    * Office Open XML Spreadsheet (.xlsx)
+    * Microsoft Excel 2003 XML (.xml)
+    * CSV
+
+EXAMPLE
+
+    The following (100.000x25) example runs in ~25 seconds.
+
+        $fp = fopen('example.xlsx', 'w');
+        $factory = new DOMFactory();
+        $book = $factory->getBook();
+        $book->setWriter($factory->getWriterFactory()->getOfficeOpenXml2007StreamWriter($fp));
+
+        $sheet = $book->addSheet();
+        for($i = 0; $i < 100000; $i++) {
+            $sheet->addRow($this->factory->getRow(range(0, 25)));
+        }
+
+        $book->close();
+        fclose($fp);
+
+    Simple row based styling.
+
+        $row = array();
+        $factory = new DOMFactory();
+        $book = $factory->getBook();
+        $style = $book->addStyleById('style1')->setFontBold(true);
+        $sheet->addRow($factory->getRow($row)->setStyle($style));
