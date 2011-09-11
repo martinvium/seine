@@ -44,7 +44,10 @@ EXAMPLE
         $row = array();
         $factory = new DOMFactory();
         $book = $factory->getBook();
-        $style = $book->addStyleById('style1')->setFontBold(true);
+        $style = $book->addStyleById('style1')
+                      ->setFontBold(true)
+                      ->setFontFamily('Aria')
+                      ->setFontSize('14');
         $sheet->addRow($factory->getRow($row)->setStyle($style));
 
     Custom Compressor for OOXML
@@ -53,7 +56,7 @@ EXAMPLE
         {
             public function compressDir($source, $destination)
             {
-                exec('zip' . escapeshellarg($source) . escapeshellarg($destination)); // most like does not work :)
+                exec('zip' . escapeshellarg($source) . escapeshellarg($destination)); // most likely does not work :)
             }
         }
 
