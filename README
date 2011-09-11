@@ -49,6 +49,13 @@ EXAMPLE
 
     Custom Compressor for OOXML
 
-        class MyCompressor implements Spreadsheet\Compressor {}
-        $compressor = new MyCompressor;
+        class CommandLineCompressor implements SpreadsheetWriter\Compressor 
+        {
+            public function compressDir($source, $destination)
+            {
+                exec('zip' . escapeshellarg($source) . escapeshellarg($destination)); // most like does not work :)
+            }
+        }
+
+        $compressor = new CommandLineCompressor;
         $writer = new SpreadsheetWriter\Writer\OfficeOpenXML2007StreamWriter($fp, $compressor);
