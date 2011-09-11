@@ -148,7 +148,6 @@ abstract class WriterBase implements Writer
     {
         $reversedFiles = array_reverse($this->workingFiles);
         foreach($reversedFiles as $filename) {
-            echo $filename . "\n";
             if(is_dir($filename)) {
                 if(! rmdir($filename)) {
                     throw new IOException('failed to clean up dir: ' . $filename);

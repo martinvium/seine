@@ -34,7 +34,6 @@ final class SharedStringsHelper
      */
     public function writeString($string)
     {
-        echo $string . "\n";
         fwrite($this->stream, '    <si><t>' . $string . '</t></si>' . MyWriter::EOL);
         return $this->id++;
     }
