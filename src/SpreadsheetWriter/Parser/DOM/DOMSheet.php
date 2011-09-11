@@ -25,6 +25,7 @@ namespace SpreadSheetWriter\Parser\DOM;
 use SpreadSheetWriter\Sheet;
 use SpreadSheetWriter\Row;
 use SpreadSheetWriter\Writer;
+use SpreadSheetWriter\Book;
 
 final class DOMSheet extends DOMElement implements Sheet
 {
@@ -37,9 +38,12 @@ final class DOMSheet extends DOMElement implements Sheet
     
     private $started = false;
     
-    private $styles = array();
-    
     private $id;
+    
+    /**
+     * @var Book
+     */
+    private $book;
     
     public function getId()
     {
@@ -55,6 +59,14 @@ final class DOMSheet extends DOMElement implements Sheet
     }
     
     /**
+     * @internal assigned by Book
+     */
+    public function setBook(Book $book)
+    {
+        $this->book = $book;
+    }
+    
+    /**
      * @internal we do not store anything but the last row
      * @param Row $row 
      */
@@ -62,22 +74,6 @@ final class DOMSheet extends DOMElement implements Sheet
     {
         $this->startSheet();
         $this->writer->writeRow($row);
-    }
-    
-    /**
-     * @param string $id
-     * @return DOMStyle
-     */
-    public function addStyleById($id)
-    {
-        $style = $this->factory->getStyle($id);
-        $this->styles[] = $style;
-        return $style;
-    }
-    
-    public function getStyles()
-    {
-        return $this->styles;
     }
     
     public function setName($name)
@@ -105,14 +101,14 @@ final class DOMSheet extends DOMElement implements Sheet
             return;
         }
         
-        $this->writer->startSheet($this);
+        $this->writer->startSheet($this->book, $this);
         $this->started = true;
     }
     
     public function close()
     {
         if($this->started) {
-            $this->writer->endSheet($this);
+            $this->writer->endSheet($this->book, $this);
         }
         
         $this->started = false;

@@ -22,15 +22,37 @@
  */
 namespace SpreadSheetWriter;
 
+/**
+ * Represents the entire book or document.
+ */
 interface Book
 {
     /**
+     * Add a Sheet or new subset of data to the Book.
+     * 
      * @param Sheet $sheet
+     * @return Sheet
      */
     public function addSheet(Sheet $sheet);
     
     /**
+     * Get the Sheet(s) added to this Book.
+     * 
      * @return Sheet[]
      */
     public function getSheets();
+    
+    /**
+     * Create and add a new Style for this Book. Only needs to be added to the wanted Row(s).
+     * 
+     * @return Style
+     */
+    public function newStyle();
+    
+    /**
+     * Get the Style(s) added to this Book.
+     * 
+     * @return Style[]
+     */
+    public function getStyles();
 }

@@ -57,7 +57,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         }
 
         $sheet = $book->addSheetByName('mor"e2');
-        $style = $sheet->addStyleById('mystyle')->setFontBold(true);
+        $style = $book->newStyle()->setFontBold(true);
         $sheet->addRow($this->factory->getRow(array('head1', 'head2', 'head3', 'head4'))->setStyle($style));
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
@@ -71,7 +71,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         fclose($fp);
     }
     
-    public function testLargeNumberOfRowsDoesNotImpedeMemory()
+    public function testWriteSpeedAndMemoryUsage()
     {
         $memory_limit = 20 * 1000 * 1000; // 20 MB
         $time_limit_seconds = 5.0; // 5 seconds

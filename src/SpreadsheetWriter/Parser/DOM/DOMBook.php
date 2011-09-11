@@ -42,6 +42,8 @@ final class DOMBook extends DOMElement implements Book
    
     private $started = false;
     
+    private $styles = array();
+    
     public function setWriter(Writer $writer)
     {
         $this->writer = $writer;
@@ -60,11 +62,12 @@ final class DOMBook extends DOMElement implements Book
     }
     
     /**
-     * @param Sheet $sheet
+     * @param DOMSheet $sheet
      * @return DOMSheet 
      */
     public function addSheet(Sheet $sheet)
     {
+        $sheet->setBook($this);
         $sheet->setId(count($this->sheets));
         $this->startBook();
         
@@ -80,6 +83,24 @@ final class DOMBook extends DOMElement implements Book
     public function getSheets()
     {
         return $this->sheets;
+    }
+    
+    /**
+     * @return DOMStyle
+     */
+    public function newStyle()
+    {
+        $style = $this->factory->getStyle('s' . count($this->styles));
+        $this->styles[] = $style;
+        return $style;
+    }
+    
+    /**
+     * @return DOMStyle[]
+     */
+    public function getStyles()
+    {
+        return $this->styles;
     }
     
     private function startBook()

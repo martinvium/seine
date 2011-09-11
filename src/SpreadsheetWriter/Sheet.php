@@ -28,8 +28,6 @@ interface Sheet
     
     public function getName();
     
-    public function getStyles();
-    
     /**
      * Sheet unique numeric id
      */

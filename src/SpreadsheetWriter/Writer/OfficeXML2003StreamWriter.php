@@ -58,12 +58,12 @@ class OfficeXml2003StreamWriter implements Writer
     
     public function endBook(Book $book)
     {
+        $this->writeStyles($book->getStyles());
         $this->writeStream('</Workbook>');
     }
     
-    public function startSheet(Sheet $sheet)
+    public function startSheet(Book $book, Sheet $sheet)
     {
-        $this->writeStyles($sheet->getStyles());
         $this->writeStream('    <Worksheet ss:Name="' . $this->escape($sheet->getName()) . '">
         <Table>' . self::EOL);
     }
@@ -93,7 +93,7 @@ class OfficeXml2003StreamWriter implements Writer
         $this->writeStream($out);
     }
     
-    public function endSheet(Sheet $sheet)
+    public function endSheet(Book $book, Sheet $sheet)
     {
         $this->writeStream('        </Table>
         <x:WorksheetOptions/>

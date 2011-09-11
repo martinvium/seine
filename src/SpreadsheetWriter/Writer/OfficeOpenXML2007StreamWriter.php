@@ -25,6 +25,7 @@ namespace SpreadSheetWriter\Writer;
 use SpreadSheetWriter\Row;
 use SpreadSheetWriter\Book;
 use SpreadSheetWriter\Sheet;
+use SpreadSheetWriter\Style;
 
 final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
 {
@@ -37,7 +38,7 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
         $this->createBaseStructure();
     }
     
-    public function startSheet(Sheet $sheet)
+    public function startSheet(Book $book, Sheet $sheet)
     {
         $sheetFile = $this->sheetDir . DIRECTORY_SEPARATOR . 'sheet' . $sheet->getId() . '.xml';
         $this->sheetStream = $this->createWorkingStream($sheetFile);
@@ -65,7 +66,7 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
         fwrite($this->sheetStream, $out . '        </row>' . self::EOL);
     }
     
-    public function endSheet(Sheet $sheet)
+    public function endSheet(Book $book, Sheet $sheet)
     {
         fwrite($this->sheetStream, '    </sheetData>' . self::EOL);
         fwrite($this->sheetStream, '</worksheet>');
@@ -75,7 +76,7 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
     public function endBook(Book $book)
     {
         $this->createBookFile($book->getSheets());
-        $this->createStylesFile($book->getSheets());
+        $this->createStylesFile($book->getStyles());
         $this->createDataRelationsFile($book->getSheets());
         $this->createContentTypesFile($book->getSheets());
         $this->zipWorkingFiles();
@@ -142,13 +143,52 @@ final class OfficeOpenXML2007StreamWriter extends OfficeOpenXML2007Base
         $this->createWorkingFile($filename, $data);
     }
     
-    private function createStylesFile()
+    /**
+     *
+     * @var Style $style
+     * @param Style[] $styles 
+     */
+    private function createStylesFile(array $styles)
     {
         $data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . self::EOL;
+        $data .= $this->buildStyleFonts($styles);
+        $data .= $this->buildStyleCellXfs($styles);
         $data .= '</styleSheet>';
         
         $filename = $this->dataDir . DIRECTORY_SEPARATOR . 'styles.xml';
         $this->createWorkingFile($filename, $data);
+    }
+    
+    private function buildStyleFonts(array $styles)
+    {
+        $data = '    <fonts count="' . count($styles) . '">';
+        foreach($styles as $style) {
+            $data .= '        <font>';
+            if($style->getFontFamily()) {
+                $data .= '            <name val="Arial"/>' . self::EOL;
+                $data .= '            <family val="2"/>' . self::EOL;
+            }
+
+            if($style->getFontSize()) {
+                 $data .= '            <sz val="' . $style->getFontSize() . '"/>';
+            }
+            $data .= '        </font>' . self::EOL;
+        }
+        $data .= '    </fonts>' . self::EOL;
+        return $data;
+    }
+    
+    private function buildStyleCellXfs(array $styles)
+    {
+        $i = 0;
+        $data = '<cellXfs count="' . count($styles) . '">';
+        foreach($styles as $style) {
+            $applyFont = ($style->getFontFamily() || $style->getFontSize() ? 'true' : 'false');
+            $data .= '<xf fontId="' . $i . ' applyFont="' . $applyFont . '></xf>';
+            $i++;
+        }
+        $data .= '</cellXfs>';
+        return $data;
     }
 }
