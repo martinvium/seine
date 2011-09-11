@@ -8,10 +8,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,71 +33,71 @@ use SpreadSheetWriter\Sheet;
 class CsvStreamWriter implements Writer
 {
     const CRLF = "\r\n";
-    
+
     const FIELD_DEL_DEFAULT = ",";
     const TEXT_DEL_DEFAULT = '"';
-    
+
     private $rowDelimiter = self::CRLF;
     private $fieldDelimiter = self::FIELD_DEL_DEFAULT;
     private $textDelimiter = self::TEXT_DEL_DEFAULT;
-    
+
     private $stream;
-    
+
     public function __construct($stream)
     {
         if(! is_resource($stream)) {
             throw new \InvalidArgumentException('fp is not a valid stream resource');
         }
-        
+
         $this->stream = $stream;
     }
-    
+
     public function setRowDelimiter($del)
     {
         $this->rowDelimiter = $del;
     }
-    
+
     public function setFieldDelimiter($del)
     {
         $this->fieldDelimiter = $del;
     }
-    
+
     public function setTextDelimiter($del)
     {
         $this->textDelimiter = $del;
     }
-    
+
     public function startBook(Book $book)
     {
-        
+
     }
-    
+
     public function endBook(Book $book)
     {
-        
+
     }
-    
+
     public function startSheet(Book $book, Sheet $sheet)
     {
-        
+
     }
-    
+
     public function endSheet(Book $book, Sheet $sheet)
     {
-        
+
     }
-    
-    public function writeRow(Row $row)
+
+    public function writeRow(Sheet $sheet, Row $row)
     {
         $paddedCells = array_map(array($this, 'quote'), $row->getCells());
         $this->writeStream(implode($this->fieldDelimiter, $paddedCells) . $this->rowDelimiter);
     }
-    
+
     private function writeStream($data)
     {
         fwrite($this->stream, $data);
     }
-    
+
     private function quote($string)
     {
         $escapedString = str_replace($this->textDelimiter, $this->textDelimiter . $this->textDelimiter, $string);
