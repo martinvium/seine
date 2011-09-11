@@ -28,6 +28,7 @@ use SpreadSheetWriter\Sheet;
 use SpreadSheetWriter\Style;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\WriterBase;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\SharedStringsHelper;
+use SpreadSheetWriter\Writer\OfficeOpenXML2007\StylesHelper;
 
 final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
@@ -171,48 +172,12 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
     }
     
     /**
-     *
-     * @var Style $style
      * @param Style[] $styles 
      */
     private function createStylesFile(array $styles)
     {
-        $data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . self::EOL;
-        $data .= $this->buildStyleFonts($styles);
-        $data .= $this->buildStyleCellXfs($styles);
-        $data .= '</styleSheet>';
-        
+        $stylesHelper = new StylesHelper();
         $filename = $this->dataDir . DIRECTORY_SEPARATOR . 'styles.xml';
-        $this->createWorkingFile($filename, $data);
-    }
-    
-    private function buildStyleFonts(array $styles)
-    {
-        $data = '    <fonts count="' . count($styles) . '">' . self::EOL;
-        foreach($styles as $style) {
-            $data .= '        <font>' . self::EOL;
-            if($style->getFontBold()) {
-                $data .= '            <b/>' . self::EOL;
-            }
-            $data .= '            <sz val="' . ($style->getFontSize() ? $style->getFontSize() : self::FONT_SIZE_DEFAULT) . '"/>' . self::EOL;
-            $data .= '            <name val="' . ($style->getFontFamily() ? $style->getFontFamily() : self::FONT_FAMILY_DEFAULT) . '"/>' . self::EOL;
-            $data .= '            <family val="2"/>' . self::EOL; // no clue why this needs to be there
-            $data .= '        </font>' . self::EOL;
-        }
-        $data .= '    </fonts>' . self::EOL;
-        return $data;
-    }
-    
-    private function buildStyleCellXfs(array $styles)
-    {
-        $i = 0;
-        $data = '    <cellXfs count="' . count($styles) . '">' . self::EOL;
-        foreach($styles as $style) {
-            $data .= '        <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>' . self::EOL;
-            $i++;
-        }
-        $data .= '    </cellXfs>' . self::EOL;
-        return $data;
+        $this->createWorkingFile($filename, $stylesHelper->render($styles));
     }
 }
