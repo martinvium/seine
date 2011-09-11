@@ -8,10 +8,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,23 +33,23 @@ final class DOMSheet extends DOMElement implements Sheet
      * @var Writer
      */
     private $writer;
-    
+
     private $name = '';
-    
+
     private $started = false;
-    
+
     private $id;
-    
+
     /**
      * @var Book
      */
     private $book;
-    
+
     public function getId()
     {
         return $this->id;
     }
-    
+
     /**
      * @internal assigned by Book
      */
@@ -57,7 +57,7 @@ final class DOMSheet extends DOMElement implements Sheet
     {
         $this->id = (int)$id;
     }
-    
+
     /**
      * @internal assigned by Book
      */
@@ -65,52 +65,54 @@ final class DOMSheet extends DOMElement implements Sheet
     {
         $this->book = $book;
     }
-    
+
     /**
      * @internal we do not store anything but the last row
-     * @param Row $row 
+     *
+     * @param Sheet $sheet
+     * @param Row $row
      */
     public function addRow(Row $row)
     {
         $this->startSheet();
-        $this->writer->writeRow($row);
+        $this->writer->writeRow($this, $row);
     }
-    
+
     public function setName($name)
     {
         $this->name = (string)$name;
     }
-    
+
     public function getName()
     {
         return $this->name;
     }
-    
+
     public function setWriter(Writer $writer)
     {
         $this->writer = $writer;
     }
-    
+
     private function startSheet()
     {
         if(! $this->writer) {
             throw new \Exception('writer is undefined');
         }
-        
+
         if($this->started) {
             return;
         }
-        
+
         $this->writer->startSheet($this->book, $this);
         $this->started = true;
     }
-    
+
     public function close()
     {
         if($this->started) {
             $this->writer->endSheet($this->book, $this);
         }
-        
+
         $this->started = false;
     }
 }
