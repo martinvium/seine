@@ -33,4 +33,6 @@ interface Writer
     public function startBook(Book $book);
 
     public function endBook(Book $book);
+
+    public function setConfig(Configuration $config);
 }

@@ -26,12 +26,17 @@ use SpreadSheetWriter\Writer;
 use SpreadSheetWriter\Row;
 use SpreadSheetWriter\Book;
 use SpreadSheetWriter\Sheet;
+use SpreadSheetWriter\Configuration;
 
 /**
  * @link http://tools.ietf.org/html/rfc4180
  */
 class CsvStreamWriter implements Writer
 {
+    const OPT_FIELD_DELIMITER = 'CsvStreamWriter::OPT_FIELD_DELIMITER';
+    const OPT_TEXT_DELIMITER = 'CsvStreamWriter::OPT_TEXT_DELIMITER';
+    const OPT_ROW_DELIMITER = 'CsvStreamWriter::OPT_ROW_DELIMITER';
+
     const CRLF = "\r\n";
 
     const FIELD_DEL_DEFAULT = ",";
@@ -102,5 +107,12 @@ class CsvStreamWriter implements Writer
     {
         $escapedString = str_replace($this->textDelimiter, $this->textDelimiter . $this->textDelimiter, $string);
         return $this->textDelimiter . $escapedString . $this->textDelimiter;
+    }
+
+    public function setConfig(Configuration $config)
+    {
+        $this->setFieldDelimiter($config->getOption(self::OPT_FIELD_DELIMITER, $this->fieldDelimiter));
+        $this->setTextDelimiter($config->getOption(self::OPT_TEXT_DELIMITER, $this->textDelimiter));
+        $this->setRowDelimiter($config->getOption(self::OPT_ROW_DELIMITER, $this->rowDelimiter));
     }
 }

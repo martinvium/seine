@@ -31,6 +31,10 @@ use SpreadSheetWriter\Writer\OfficeOpenXML2007\SharedStringsHelper;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\StylesHelper;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\SheetHelper;
 
+/**
+ * @link http://www.ecma-international.org/publications/standards/Ecma-376.htm
+ * @link http://en.wikipedia.org/wiki/Office_Open_XML
+ */
 final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
     /**

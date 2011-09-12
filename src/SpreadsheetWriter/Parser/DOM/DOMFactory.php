@@ -24,9 +24,34 @@ namespace SpreadSheetWriter\Parser\DOM;
 
 use SpreadSheetWriter\Factory;
 use SpreadSheetWriter\Writer\WriterFactoryImpl;
+use SpreadSheetWriter\Writer;
+use SpreadSheetWriter\Configuration;
+use SpreadSheetWriter\Book;
 
 final class DOMFactory implements Factory 
 {
+    /**
+     * @var Configuration
+     */
+    private $config;
+
+    public static function FromConfig(Configuration $config)
+    {
+        $factory = new self();
+        $factory->setConfig($config);
+        return $factory;
+    }
+
+    public function __construct()
+    {
+        $this->config = new Configuration;
+    }
+
+    public function setConfig(Configuration $config)
+    {
+        $this->config = $config;
+    }
+    
     /**
      * @return WriterFactoryImpl 
      */
@@ -67,5 +92,53 @@ final class DOMFactory implements Factory
     public function getStyle($id)
     {
         return new DOMStyle($this, $id);
+    }
+    
+    /**
+     * @param stream $fp
+     * @param Configuration $config
+     * @return Book
+     */
+    public function getConfiguredBook($fp, Configuration $config = null)
+    {
+        $book = $this->getBook();
+        $book->setWriter($this->getConfiguredWriter($fp, $config));
+        return $book;
+    }
+
+    /**
+     * @param stream $fp
+     * @param Configuration $config
+     * @return Writer
+     */
+    public function getConfiguredWriter($fp, Configuration $config = null)
+    {
+        if(! $config) {
+            $config = $this->config;
+        }
+
+        $writerName = $config->getOption(Configuration::OPT_WRITER);
+        if(! $writerName) {
+            throw new \Exception('Writer must be defined in config for getConfiguredWriter()');
+        }
+
+        $writer = $this->getWriterByName($fp, $writerName);
+        $writer->setConfig($config);
+        return $writer;
+    }
+
+    /**
+     * @param stream $fp
+     * @param string $writerName
+     * @return Writer
+     */
+    public function getWriterByName($fp, $writerName)
+    {
+        $method = 'get' . $writerName;
+        if(method_exists($this->getWriterFactory(), $method)) {
+            return $this->getWriterFactory()->$method($fp);
+        } else {
+            throw new \InvalidArgumentException('writer not found: ' . $writerName);
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace SpreadSheetWriter\Writer;
 require_once(dirname(dirname(__DIR__)) . '/bootstrap.php');
 
 use SpreadSheetWriter\Parser\DOM\DOMFactory;
+use SpreadSheetWriter\Configuration;
 
 class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,19 +34,26 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
      */
     private $factory;
 
+    /**
+     * @var Configuration
+     */
+    private $config;
+
     public function setUp()
     {
         parent::setUp();
+        $this->config = new Configuration();
+        $this->config->setOption(Configuration::OPT_WRITER, 'CSVStreamWriter');
         $this->factory = new DOMFactory();
     }
 
-    public function testWritesInValidFormat()
+    public function testWritesValidFormat()
     {
         $actual_file = __DIR__ . '/_files/actual_valid.csv';
 
         $fp = $this->makeStream($actual_file);
 
-        $book = $this->makeBookWithWriter($fp);
+        $book = $this->factory->getConfiguredBook($fp, $this->config);
         $sheet = $book->addSheetByName('more1');
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
@@ -68,12 +76,11 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
 
         $fp = $this->makeStream($actual_file);
 
-        $book = $this->factory->getBook();
-        $writer = $this->factory->getWriterFactory()->getCsvStreamWriter($fp);
-        $writer->setFieldDelimiter(';');
-        $writer->setTextDelimiter("'");
-        $writer->setRowDelimiter('NEWROW');
-        $book->setWriter($writer);
+        $this->config->setOption(CsvStreamWriter::OPT_FIELD_DELIMITER, ';');
+        $this->config->setOption(CsvStreamWriter::OPT_TEXT_DELIMITER, "'");
+        $this->config->setOption(CsvStreamWriter::OPT_ROW_DELIMITER, 'NEWROW');
+        $book = $this->factory->getConfiguredBook($fp, $this->config);
+
         $sheet = $book->addSheetByName('more1');
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
@@ -102,7 +109,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
 
         $fp = $this->makeStream($actual_file);
 
-        $book = $this->makeBookWithWriter($fp);
+        $book = $this->factory->getConfiguredBook($fp, $this->config);
         $sheet = $book->addSheetByName('more1');
         for($i = 0; $i < $num_rows; $i++) {
             $sheet->addRow($this->factory->getRow(range(0, $num_columns)));
@@ -117,13 +124,5 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
     private function makeStream($filename)
     {
         return fopen($filename, 'w');
-    }
-
-    private function makeBookWithWriter($fp)
-    {
-        $book = $this->factory->getBook();
-        $writer = $this->factory->getWriterFactory()->getCsvStreamWriter($fp);
-        $book->setWriter($writer);
-        return $book;
     }
 }

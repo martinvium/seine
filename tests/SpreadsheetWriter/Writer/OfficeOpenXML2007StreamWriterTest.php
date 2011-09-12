@@ -25,6 +25,7 @@ namespace SpreadSheetWriter\Writer;
 require_once(dirname(dirname(__DIR__)) . '/bootstrap.php');
 
 use SpreadSheetWriter\Parser\DOM\DOMFactory;
+use SpreadSheetWriter\Configuration;
 
 class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
 {
@@ -32,11 +33,19 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
      * @var DOMFactory
      */
     private $factory;
+
+    /**
+     * @var Configuration
+     */
+    private $config;
     
     public function setUp()
     {
         parent::setUp();
-        $this->factory = new DOMFactory();
+        $this->config = new Configuration;
+        $this->config->setOption(Configuration::OPT_WRITER, 'OfficeOpenXML2007StreamWriter');
+        $this->config->setOption(Configuration::OPT_TEMP_DIR, __DIR__ . '/_files');
+        $this->factory = DOMFactory::FromConfig($this->config);
     }
     
     public function testMultipleSheetsWithStyles()
@@ -45,7 +54,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         
         $fp = $this->makeStream($actual_file);
         
-        $book = $this->makeBookWithWriter($fp);
+        $book = $this->factory->getConfiguredBook($fp);
         $sheet = $book->addSheetByName('more1');
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
@@ -77,7 +86,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
 
         $fp = $this->makeStream($actual_file);
 
-        $book = $this->makeBookWithWriter($fp);
+        $book = $this->factory->getConfiguredBook($fp);
         $sheet1 = $book->addSheetByName('s1');
         $sheet2 = $book->addSheetByName('s2');
         for($i = 0; $i < 10; $i++) {
@@ -106,7 +115,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         
         $fp = $this->makeStream($actual_file);
         
-        $book = $this->makeBookWithWriter($fp);
+        $book = $this->factory->getConfiguredBook($fp);
         $sheet = $book->addSheetByName('more1');
         for($i = 0; $i < $num_rows; $i++) {
             $sheet->addRow($this->factory->getRow(range(0, $num_columns)));
@@ -121,14 +130,5 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
     private function makeStream($filename)
     {
         return fopen($filename, 'w');
-    }
-    
-    private function makeBookWithWriter($fp)
-    {
-        $book = $this->factory->getBook();
-        $writer = $this->factory->getWriterFactory()->getOfficeOpenXML2007StreamWriter($fp);
-        $writer->setTempDir(__DIR__ . '/_files');
-        $book->setWriter($writer);
-        return $book;
     }
 }
