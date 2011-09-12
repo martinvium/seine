@@ -28,6 +28,7 @@ use SpreadSheetWriter\Row;
 use SpreadSheetWriter\Book;
 use SpreadSheetWriter\Sheet;
 use SpreadSheetWriter\Writer\OfficeXml2003StreamWriter\Sheet as Xml2003Sheet;
+use SpreadSheetWriter\Configuration;
 
 class OfficeXml2003StreamWriter implements Writer
 {
