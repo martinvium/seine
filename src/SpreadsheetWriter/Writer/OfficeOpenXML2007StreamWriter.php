@@ -30,6 +30,7 @@ use SpreadSheetWriter\Writer\OfficeOpenXML2007\WriterBase;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\SharedStringsHelper;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\StylesHelper;
 use SpreadSheetWriter\Writer\OfficeOpenXML2007\SheetHelper;
+use SpreadSheetWriter\Configuration;
 
 /**
  * @link http://www.ecma-international.org/publications/standards/Ecma-376.htm
@@ -37,6 +38,8 @@ use SpreadSheetWriter\Writer\OfficeOpenXML2007\SheetHelper;
  */
 final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
+    const OPT_TEMP_DIR = Configuration::OPT_TEMP_DIR;
+
     /**
      * @var Style
      */
@@ -51,7 +54,12 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
      * @var SheetHelper[]
      */
     private $sheetHelpers = array();
-    
+
+    public function setConfig(Configuration $config)
+    {
+        $this->setTempDir($config->getOption(self::OPT_TEMP_DIR, $this->tempDir));
+    }
+
     public function startBook(Book $book)
     {
         $this->createBaseStructure();

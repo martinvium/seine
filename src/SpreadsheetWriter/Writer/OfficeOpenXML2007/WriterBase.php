@@ -25,11 +25,10 @@ namespace SpreadSheetWriter\Writer\OfficeOpenXML2007;
 use SpreadSheetWriter\Writer;
 use SpreadSheetWriter\IOException;
 use SpreadSheetWriter\Compressor;
-use SpreadSheetWriter\Configuration;
 
 abstract class WriterBase implements Writer
 {
-    const OPT_TEMP_DIR = Configuration::OPT_TEMP_DIR;
+    
     
     const APP_NAME = 'SpreadSheetWriter';
     const EOL = "\r\n";
@@ -59,11 +58,6 @@ abstract class WriterBase implements Writer
         $this->tempDir = sys_get_temp_dir();
     }
 
-    public function setConfig(Configuration $config)
-    {
-        $this->setTempDir($config->getOption(self::OPT_TEMP_DIR, $this->tempDir));
-    }
-    
     public function setTempDir($dir)
     {
         $this->tempDir = $dir;
