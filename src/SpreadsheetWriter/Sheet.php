@@ -24,17 +24,40 @@ namespace SpreadSheetWriter;
 
 interface Sheet
 {
+    /**
+     * @internal assigned by Book
+     * @access private
+     */
+    public function setBook(Book $book);
+
+    /**
+     * Add a row to the sheet
+     *
+     * @param Row $row
+     * @return Sheet
+     */
     public function addRow(Row $row);
-    
+
+    /**
+     * Get the visible name of the sheet
+     *
+     * @return string
+     */
     public function getName();
     
     /**
-     * Sheet unique numeric id
+     * Get the internal unique id of  the sheet
+     *
+     * @access private
+     * @return string
      */
     public function getId();
     
     /**
-     * @internal assigned by Book
+     * Used by Book to assign a unique id to the sheet.
+     *
+     * @access private
+     * @return Sheet
      */
     public function setId($id);
 }

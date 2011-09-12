@@ -54,7 +54,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = $this->makeStream($actual_file);
 
         $book = $this->factory->getConfiguredBook($fp, $this->config);
-        $sheet = $book->addSheetByName('more1');
+        $sheet = $book->newSheet('more1');
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
@@ -81,7 +81,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $this->config->setOption(CsvStreamWriter::OPT_ROW_DELIMITER, 'NEWROW');
         $book = $this->factory->getConfiguredBook($fp, $this->config);
 
-        $sheet = $book->addSheetByName('more1');
+        $sheet = $book->newSheet('more1');
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
@@ -110,7 +110,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = $this->makeStream($actual_file);
 
         $book = $this->factory->getConfiguredBook($fp, $this->config);
-        $sheet = $book->addSheetByName('more1');
+        $sheet = $book->newSheet('more1');
         for($i = 0; $i < $num_rows; $i++) {
             $sheet->addRow($this->factory->getRow(range(0, $num_columns)));
         }

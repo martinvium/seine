@@ -24,6 +24,10 @@ namespace SpreadSheetWriter;
 
 interface Style 
 {
+    /**
+     * @internal assigned by Book
+     * @access private
+     */
     public function getId();
     
     public function getFontBold();

@@ -55,7 +55,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = $this->makeStream($actual_file);
         
         $book = $this->factory->getConfiguredBook($fp);
-        $sheet = $book->addSheetByName('more1');
+        $sheet = $book->newSheet('more1');
         for($i = 0; $i < 10; $i++) {
             $sheet->addRow($this->factory->getRow(array(
                 'cell1',
@@ -65,7 +65,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
             )));
         }
 
-        $sheet = $book->addSheetByName('mor"e2');
+        $sheet = $book->newSheet('mor"e2');
         $style = $book->newStyle()->setFontBold(true);
         $sheet->addRow($this->factory->getRow(array('head1', 'head2', 'head3', 'head4'))->setStyle($style));
         for($i = 0; $i < 10; $i++) {
@@ -87,8 +87,8 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = $this->makeStream($actual_file);
 
         $book = $this->factory->getConfiguredBook($fp);
-        $sheet1 = $book->addSheetByName('s1');
-        $sheet2 = $book->addSheetByName('s2');
+        $sheet1 = $book->newSheet('s1');
+        $sheet2 = $book->newSheet('s2');
         for($i = 0; $i < 10; $i++) {
             $sheet1->addRow($this->factory->getRow(range(0, 10)));
         }
@@ -116,7 +116,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = $this->makeStream($actual_file);
         
         $book = $this->factory->getConfiguredBook($fp);
-        $sheet = $book->addSheetByName('more1');
+        $sheet = $book->newSheet('more1');
         for($i = 0; $i < $num_rows; $i++) {
             $sheet->addRow($this->factory->getRow(range(0, $num_columns)));
         }

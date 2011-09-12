@@ -41,6 +41,14 @@ interface Book
      * @return Sheet[]
      */
     public function getSheets();
+
+    /**
+     * Create and add a new Sheet on the Book.
+     *
+     * @param string $name
+     * @return Sheet
+     */
+    public function newSheet($name = null);
     
     /**
      * Create and add a new Style for this Book. Only needs to be added to the wanted Row(s).

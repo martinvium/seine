@@ -28,6 +28,10 @@ use SpreadSheetWriter\Writer;
 use SpreadSheetWriter\Configuration;
 use SpreadSheetWriter\Book;
 
+/**
+ * Base of operation when creating spreadsheets.
+ * @author Martin Vium
+ */
 final class DOMFactory implements Factory 
 {
     /**
@@ -35,6 +39,12 @@ final class DOMFactory implements Factory
      */
     private $config;
 
+    /**
+     * Create a factory object specifying the default configuration.
+     *
+     * @param Configuration $config
+     * @return DOMFactory
+     */
     public static function FromConfig(Configuration $config)
     {
         $factory = new self();
@@ -47,6 +57,11 @@ final class DOMFactory implements Factory
         $this->config = new Configuration;
     }
 
+    /**
+     * Set the default configuration for getConfiguredWriter() and getConfiguredBook().
+     *
+     * @param Configuration $config
+     */
     public function setConfig(Configuration $config)
     {
         $this->config = $config;
@@ -61,6 +76,9 @@ final class DOMFactory implements Factory
     }
     
     /**
+     * Get a "clean" book object, you must set a writer before using it.
+     *
+     * @see Book::setWriter()
      * @return DOMBook 
      */
     public function getBook()
@@ -69,6 +87,8 @@ final class DOMFactory implements Factory
     }
     
     /**
+     * Get a new row object.
+     *
      * @param array $cells
      * @return DOMArrayRow
      */
@@ -78,6 +98,7 @@ final class DOMFactory implements Factory
     }
     
     /**
+     * @internal
      * @return DOMSheet 
      */
     public function getSheet()
@@ -86,6 +107,8 @@ final class DOMFactory implements Factory
     }
 
     /**
+     * @internal
+     * @see Book::newStyle()
      * @param string $id
      * @return DOMStyle
      */
@@ -95,6 +118,9 @@ final class DOMFactory implements Factory
     }
     
     /**
+     * Get a Book already configured with a writer and options from the default configuration
+     * or the $config param if passed in.
+     *
      * @param stream $fp
      * @param Configuration $config
      * @return Book
@@ -107,6 +133,8 @@ final class DOMFactory implements Factory
     }
 
     /**
+     * Get a writer configured using the default configuration or the one passed in.
+     *
      * @param stream $fp
      * @param Configuration $config
      * @return Writer
@@ -128,6 +156,9 @@ final class DOMFactory implements Factory
     }
 
     /**
+     * Get a writer by it's name. The name is looked up in the writer factory prefixed with "get".
+     *
+     * @example $writer = $factory->getWriterByName($fp, 'OfficeOpenXML2003StreamWriter');
      * @param stream $fp
      * @param string $writerName
      * @return Writer

@@ -50,28 +50,16 @@ final class DOMSheet extends DOMElement implements Sheet
         return $this->id;
     }
 
-    /**
-     * @internal assigned by Book
-     */
     public function setId($id)
     {
         $this->id = (int)$id;
     }
 
-    /**
-     * @internal assigned by Book
-     */
     public function setBook(Book $book)
     {
         $this->book = $book;
     }
 
-    /**
-     * @internal we do not store anything but the last row
-     *
-     * @param Sheet $sheet
-     * @param Row $row
-     */
     public function addRow(Row $row)
     {
         $this->startSheet();
