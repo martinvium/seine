@@ -155,4 +155,9 @@ EOD;
     {
         fwrite($stream, $data);
     }
+
+    public function setConfig(Configuration $config)
+    {
+
+    }
 }
