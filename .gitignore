@@ -9,3 +9,4 @@ Thumbs.db
 /tests/SpreadsheetWriter/Writer/_files/performance.xml
 /tests/SpreadsheetWriter/Writer/_files/actual_valid.xlsx
 /tests/SpreadsheetWriter/Writer/_files/performance.xlsx
+/tests/SpreadsheetWriter/Writer/_files/multi_sheet_write.xlsx
