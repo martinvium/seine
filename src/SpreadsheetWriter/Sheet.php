@@ -60,4 +60,6 @@ interface Sheet
      * @return Sheet
      */
     public function setId($id);
+    
+    public function setName($name);
 }

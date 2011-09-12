@@ -49,6 +49,10 @@ final class DOMBook extends DOMElement implements Book
     public function newSheet($name = null)
     {
         $sheet = $this->factory->getSheet();
+        if($name) {
+            $sheet->setName($name);
+        }
+
         $this->addSheet($sheet);
         return $sheet;
     }
