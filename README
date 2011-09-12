@@ -24,31 +24,34 @@ WRITERS
 
 EXAMPLE
 
-    The following (100.000x25) example runs in ~25 seconds.
+    Create a configured Book and close after you done.
 
         $fp = fopen('example.xlsx', 'w');
-        $factory = new DOMFactory();
-        $book = $factory->getBook();
-        $book->setWriter($factory->getWriterFactory()->getOfficeOpenXml2007StreamWriter($fp));
+        $config = new Configuration();
+        $config->setWriter(Configuration::WRITER, 'OfficeOpenXml2007StreamWriter');
+        $factory = new OMFactory($config);
+        $book = $factory->getConfiguredBook();
 
-        $sheet = $book->addSheet();
-        for($i = 0; $i < 100000; $i++) {
-            $sheet->addRow($this->factory->getRow(range(0, 25)));
-        }
+        // Add rows and styles
 
         $book->close();
         fclose($fp);
 
-    Simple row based styling.
+    Add 100.000 rows with 25 columns in ~25 seconds.
 
-        $row = array();
-        $factory = new DOMFactory();
-        $book = $factory->getBook();
-        $style = $book->addStyleById('style1')
+        $sheet = $book->newSheet();
+        for($i = 0; $i < 100000; $i++) {
+            $sheet->addRow($this->factory->getRow(range(0, 25)));
+        }
+
+    Add styling to a Row.
+
+        $style = $book->newStyle()
                       ->setFontBold(true)
                       ->setFontFamily('Aria')
                       ->setFontSize('14');
-        $sheet->addRow($factory->getRow($row)->setStyle($style));
+        $row = $factory->getRow(array('cell1', 'cell2'));
+        $row->addStyle($style);
 
     Custom Compressor for OOXML
 
@@ -56,7 +59,7 @@ EXAMPLE
         {
             public function compressDir($source, $destination)
             {
-                exec('zip' . escapeshellarg($source) . escapeshellarg($destination)); // most likely does not work :)
+                exec('zip' . escapeshellarg($source) . escapeshellarg($destination)); // Most likely does not work :)
             }
         }
 
