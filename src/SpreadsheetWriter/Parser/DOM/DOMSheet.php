@@ -53,6 +53,14 @@ final class DOMSheet extends DOMElement implements Sheet
     public function setId($id)
     {
         $this->id = (int)$id;
+        $this->setDefaultName();
+    }
+
+    private function setDefaultName()
+    {
+        if(! $this->getName()) {
+            $this->setName('Sheet' . $this->getId());
+        }
     }
 
     public function setBook(Book $book)

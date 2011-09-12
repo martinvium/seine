@@ -87,8 +87,8 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = $this->makeStream($actual_file);
 
         $book = $this->factory->getConfiguredBook($fp);
-        $sheet1 = $book->newSheet('s1');
-        $sheet2 = $book->newSheet('s2');
+        $sheet1 = $book->newSheet();
+        $sheet2 = $book->newSheet();
         for($i = 0; $i < 10; $i++) {
             $sheet1->addRow($this->factory->getRow(range(0, 10)));
         }
