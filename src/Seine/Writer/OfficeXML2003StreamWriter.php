@@ -30,7 +30,7 @@ use Seine\Sheet;
 use Seine\Writer\OfficeXml2003StreamWriter\Sheet as Xml2003Sheet;
 use Seine\Configuration;
 
-class OfficeXml2003StreamWriter implements Writer
+class OfficeXML2003StreamWriter implements Writer
 {
     const CHARSET = 'utf-8';
     const EOL = "\r\n";

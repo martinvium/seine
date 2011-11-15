@@ -43,7 +43,7 @@ class WriterFactoryImpl implements WriterFactory
      */
     public function getOfficeXML2003StreamWriter($stream)
     {
-        return new OfficeXml2003StreamWriter($stream);
+        return new OfficeXML2003StreamWriter($stream);
     }
     
     /**
