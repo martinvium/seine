@@ -97,6 +97,9 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $this->assertFileEquals(__DIR__ . '/_files/expected_custom_delimiters.csv', $actual_file);
     }
 
+    /**
+     * @group performance
+     */
     public function testWriteSpeedAndMemoryUsage()
     {
         $memory_limit = 20 * 1000 * 1000; // 20 MB

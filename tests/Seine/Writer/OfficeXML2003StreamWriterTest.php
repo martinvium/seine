@@ -76,6 +76,9 @@ class OfficeXML2003StreamWriterTest extends \PHPUnit_Framework_TestCase
         $this->assertSelectCount('Workbook Worksheet Table Row', 21, $actual, 'total number of rows');
     }
 
+    /**
+     * @group performance
+     */
     public function testWriteSpeedAndMemoryUsage()
     {
         $memory_limit = 20 * 1000 * 1000; // 20 MB
