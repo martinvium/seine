@@ -100,7 +100,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
     public function testWriteSpeedAndMemoryUsage()
     {
         $memory_limit = 20 * 1000 * 1000; // 20 MB
-        $time_limit_seconds = 3.5; // 3.5 seconds
+        $time_limit_seconds = 5.0; // 5 seconds
         $num_rows = 10000;
         $num_columns = 100;
 

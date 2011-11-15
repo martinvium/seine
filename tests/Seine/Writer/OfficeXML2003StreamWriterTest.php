@@ -79,7 +79,7 @@ class OfficeXML2003StreamWriterTest extends \PHPUnit_Framework_TestCase
     public function testWriteSpeedAndMemoryUsage()
     {
         $memory_limit = 20 * 1000 * 1000; // 20 MB
-        $time_limit_seconds = 5.0; // 5 seconds
+        $time_limit_seconds = 8.0; // 8 seconds
         $num_rows = 10000;
         $num_columns = 100;
 
