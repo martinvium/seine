@@ -5,13 +5,14 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          stopOnFailure="true">
+    
     <testsuite name="seine">
         <directory>./</directory>
     </testsuite>
 
     <groups>
         <exclude>
-            <group>disable</group>
+            <group>performance</group>
         </exclude>
     </groups>
 
