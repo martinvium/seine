@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<phpunit bootstrap="./bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="true">
+    <testsuite name="seine">
+        <directory>./</directory>
+    </testsuite>
+
+    <groups>
+        <exclude>
+            <group>disable</group>
+        </exclude>
+    </groups>
+
+    <filter>
+        <whitelist>
+                <directory suffix=".php">../src/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
