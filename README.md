@@ -30,7 +30,8 @@ Examples
 
 Create a configured Book and close after you done.
 
-    ``` use Seine\Parser\DOM\DOMFactory;
+    ``` php
+    use Seine\Parser\DOM\DOMFactory;
     use Seine\Configuration;
 
     $fp = fopen('example.xlsx', 'w');
@@ -47,7 +48,8 @@ Create a configured Book and close after you done.
 
 Add 100.000 rows with 25 columns in ~25 seconds.
 
-    ``` $sheet = $book->newSheet();
+    ``` php
+    $sheet = $book->newSheet();
     for($i = 0; $i < 100000; $i++) {
         $sheet->addRow($this->factory->getRow(range(0, 25)));
     }
@@ -55,7 +57,8 @@ Add 100.000 rows with 25 columns in ~25 seconds.
 
 Add styling to a Row.
 
-    ``` $style = $book->newStyle()
+    ``` php
+    $style = $book->newStyle()
                   ->setFontBold(true)
                   ->setFontFamily('Aria')
                   ->setFontSize('14');
@@ -65,7 +68,8 @@ Add styling to a Row.
 
 Custom Compressor for OOXML
 
-    ``` class CommandLineCompressor implements Seine\Compressor
+    ``` php
+    class CommandLineCompressor implements Seine\Compressor
     {
         public function compressDir($source, $destination)
         {
