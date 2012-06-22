@@ -45,15 +45,27 @@ final class SheetHelper
      */
     private $defaultStyle;
 
+    /**
+     * @var Style
+     */
+    private $defaultPercentStyle;
+
+    /**
+     * @var Style
+     */
+    private $defaultDateStyle;
+
     private $filename;
     private $stream;
     private $rowId = 0;
 
-    public function __construct(Sheet $sheet, SharedStringsHelper $sharedStrings, Style $defaultStyle, $filename)
+    public function __construct(Sheet $sheet, SharedStringsHelper $sharedStrings, Style $defaultStyle, $filename, Style $defaultPercentStyle, Style $defaultDateStyle)
     {
         $this->sheet = $sheet;
         $this->sharedStrings = $sharedStrings;
         $this->defaultStyle = $defaultStyle;
+        $this->defaultPercentStyle = $defaultPercentStyle;
+        $this->defaultDateStyle = $defaultDateStyle;
         $this->filename = $filename;
     }
 
@@ -69,24 +81,41 @@ final class SheetHelper
         fwrite($this->stream, '    <sheetData>' . MyWriter::EOL);
     }
 
-    public function writeRow(Row $row)
+    public function generateRow(Row $row, $rowId)
     {
         $columnId = 'A';
-        $rowId = ++$this->rowId;
-        $out = '        <row>' . MyWriter::EOL;
+
+        $out = '       <row>' . MyWriter::EOL;
         foreach($row->getCells() as $cell) {
+            $style = $row->getStyle() ? $row->getStyle()->getId() : $this->defaultStyle->getId();
+
             $out .= '            <c r="' . $columnId . $rowId . '"';
-            $out .= ' s="' . ($row->getStyle() ? $row->getStyle()->getId() : $this->defaultStyle->getId()) . '"';
+
             if(is_numeric($cell)) {
+                $out .= ' s="' . $style . '"';
                 $out .= '><v>' . $cell . '</v></c>' . MyWriter::EOL;
+            } elseif ($cell instanceof \DateTime) {
+                $out .= ' s="' . $this->defaultDateStyle->getId() . '"';
+                $out .= ' t="n"><v>' . $cell->diff(new \DateTime('1899-12-30'))->format('%a') . '</v></c>' . MyWriter::EOL;
+            } elseif(strlen($cell) > 0 && substr($cell, -1) === '%' && is_numeric(substr($cell, 0, strlen($cell) - 1))) { // Percent
+                $out .= ' s="' . $this->defaultPercentStyle->getId() . '"';
+                $out .= ' t="n"><v>' . substr($cell, 0, strlen($cell) - 1)/100 . '</v></c>' . MyWriter::EOL;
             } else {
+                $out .= ' s="' . $style . '"';
                 $sharedStringId = $this->sharedStrings->writeString($cell);
                 $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
             }
             $columnId++;
         }
 
-        fwrite($this->stream, $out . '        </row>' . MyWriter::EOL);
+        return $out . '        </row>';
+    }
+
+    public function writeRow(Row $row)
+    {
+        $rowId = ++$this->rowId;
+
+        fwrite($this->stream, $this->generateRow($row, $rowId) . MyWriter::EOL);
     }
 
     public function end()

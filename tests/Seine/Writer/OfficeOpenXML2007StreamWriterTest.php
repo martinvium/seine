@@ -8,10 +8,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,7 +38,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
      * @var Configuration
      */
     private $config;
-    
+
     public function setUp()
     {
         parent::setUp();
@@ -47,13 +47,13 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $this->config->setOption(Configuration::OPT_TEMP_DIR, __DIR__ . '/_files');
         $this->factory = DOMFactory::FromConfig($this->config);
     }
-    
+
     public function testMultipleSheetsWithStyles()
     {
         $actual_file = __DIR__ . '/_files/actual_valid.xlsx';
-        
+
         $fp = $this->makeStream($actual_file);
-        
+
         $book = $this->factory->getConfiguredBook($fp);
         $sheet = $book->newSheet('more1');
         for($i = 0; $i < 10; $i++) {
@@ -98,7 +98,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         for($i = 0; $i < 10; $i++) {
             $sheet1->addRow($this->factory->getRow(range(0, 10)));
         }
-        
+
         $book->close();
         fclose($fp);
     }
@@ -112,12 +112,12 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $time_limit_seconds = 7.0; // 7 seconds
         $num_rows = 10000;
         $num_columns = 25;
-        
+
         $start_timestamp = microtime(true);
         $actual_file = __DIR__ . '/_files/performance.xlsx';
-        
+
         $fp = $this->makeStream($actual_file);
-        
+
         $book = $this->factory->getConfiguredBook($fp);
         $sheet = $book->newSheet('more1');
         for($i = 0; $i < $num_rows; $i++) {
@@ -125,11 +125,47 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         }
         $book->close();
         fclose($fp);
-        
+
         $this->assertLessThan($memory_limit, memory_get_peak_usage(true), 'memory limit reached');
         $this->assertLessThan($time_limit_seconds, (microtime(true) - $start_timestamp), 'time limit reached');
     }
-    
+
+    public function testTypes()
+    {
+        $actual_file = __DIR__ . '/_files/types.xlsx';
+
+        $fp = $this->makeStream($actual_file);
+
+        $book = $this->factory->getConfiguredBook($fp);
+        $sheet1 = $book->newSheet();
+
+        $string = 'String';
+        $number = rand(1,100);
+        $percent = $number . '%';
+        $date = new \DateTime('2012-06-22');
+
+        $row = $this->factory->getRow(array(
+                    $string,
+                    $number,
+                    $percent,
+                    $date,
+                ));
+        $sheet1->addRow($row);
+
+        $writer = $book->getWriter();
+        $helpers = $writer->getSheetHelpers();
+
+        $this->assertEquals($helpers[1]->generateRow($row, 1), '       <row>
+            <c r="A1" s="0" t="s"><v>1</v></c>
+            <c r="B1" s="0"><v>' . $number . '</v></c>
+            <c r="C1" s="2" t="n"><v>' . $number/100 . '</v></c>
+            <c r="D1" s="1" t="n"><v>41082</v></c>
+        </row>');
+
+        $book->close();
+        fclose($fp);
+    }
+
     private function makeStream($filename)
     {
         return fopen($filename, 'w');
