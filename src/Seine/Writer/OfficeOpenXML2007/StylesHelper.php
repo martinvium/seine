@@ -33,11 +33,14 @@ final class StylesHelper
     {
         $data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . MyWriter::EOL;
+        $data .= $this->buildNumFmts();
         $data .= $this->buildStyleFonts($styles);
         $data .= $this->buildFills();
         $data .= $this->buildBorders();
-//        $data .= $this->buildCellStyles();
-        $data .= $this->buildCellXfs($styles);
+        $data .= $this->buildCellStyles();
+        $data .= $this->buildCellStyleXfs();
+        $data .= $this->buildCellXfsDefault();
+//        $data .= $this->buildCellXfs($styles);
         $data .= '</styleSheet>';
         return $data;
     }
@@ -81,11 +84,39 @@ final class StylesHelper
     </borders>';
     }
 
+    private function buildCellStyleXfs()
+    {
+        return '<cellStyleXfs count="1">
+        <xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyProtection="false" applyFont="true" applyBorder="false" applyAlignment="false"/>
+    </cellStyleXfs>';
+    }
+
     private function buildCellStyles()
     {
         return '<cellStyles count="1">
         <cellStyle name="Normal" xfId="0" builtinId="0"/>
     </cellStyles>';
+    }
+
+    private function buildNumFmts()
+    {
+        return '    <numFmts count="5">
+        <numFmt numFmtId="164" formatCode="GENERAL"/>
+        <numFmt numFmtId="165" formatCode="DD/MM/YY"/>
+        <numFmt numFmtId="166" formatCode="0%"/>
+        <numFmt numFmtId="167" formatCode="HH:MM:SS"/>
+        <numFmt numFmtId="168" formatCode="DD/MM/YY\ HH:MM"/>
+    </numFmts>';
+    }
+
+    private function buildCellXfsDefault()
+    {
+        $data = '    <cellXfs count="5">' . MyWriter::EOL;
+        for($i = 164; $i <= 168; $i++) {
+            $data .= '        <xf numFmtId="' . $i . '" fontId="0" fillId="0" borderId="0" xfId="0" applyFont="false"/>' . MyWriter::EOL;
+        }
+        $data .= '    </cellXfs>' . MyWriter::EOL;
+        return $data;
     }
 
     private function buildCellXfs(array $styles)
