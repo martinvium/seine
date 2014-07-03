@@ -73,15 +73,19 @@ final class SheetHelper
     {
         $columnId = 'A';
         $rowId = ++$this->rowId;
-        $out = '        <row>' . MyWriter::EOL;
+        $out = '        <row r="' . $rowId . '">' . MyWriter::EOL;
         foreach($row->getCells() as $cell) {
             $out .= '            <c r="' . $columnId . $rowId . '"';
             $out .= ' s="' . ($row->getStyle() ? $row->getStyle()->getId() : $this->defaultStyle->getId()) . '"';
             if(is_numeric($cell)) {
                 $out .= '><v>' . $cell . '</v></c>' . MyWriter::EOL;
             } else {
-                $sharedStringId = $this->sharedStrings->writeString($cell);
-                $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
+                if (empty($cell)) {
+                    $out .= '/>' . MyWriter::EOL;
+                } else {
+                    $sharedStringId = $this->sharedStrings->writeString($cell);
+                    $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
+                }
             }
             $columnId++;
         }

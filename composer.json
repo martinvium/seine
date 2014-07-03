@@ -1,19 +1,14 @@
 {
-    "name": "seine/seine",
+    "name": "adrilo/seine",
     "description": "Seine - Write spreadsheets of various formats to a stream",
     "keywords": ["excel","spreadsheet","calc","odf","xls","xlsx","csv","stream"],
-    "homepage": "https://github.com/martinvium/seine/",
+    "homepage": "https://github.com/aloison/seine/",
     "type": "library",
     "license": "MIT",
     "authors": [
     {
-        "name": "Martin Vium",
-        "email": "martin.vium@gmail.com",
-        "homepage": "http://blog.codefuss.com/"
-    },
-    {
-        "name": "Kim Hemsoe",
-        "email": "kim.hemsoe@gmail.com"
+        "name": "Adrien Loison",
+        "email": "adrien@box.com"
     }
     ],
     "require": {
