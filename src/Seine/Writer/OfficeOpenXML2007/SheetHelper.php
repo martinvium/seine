@@ -73,7 +73,7 @@ final class SheetHelper
     {
         $columnId = 'A';
         $rowId = ++$this->rowId;
-        $out = '        <row>' . MyWriter::EOL;
+        $out = '        <row r="' . $rowId . '">' . MyWriter::EOL;
         foreach($row->getCells() as $cell) {
             $out .= '            <c r="' . $columnId . $rowId . '"';
             $out .= ' s="' . ($row->getStyle() ? $row->getStyle()->getId() : $this->defaultStyle->getId()) . '"';
