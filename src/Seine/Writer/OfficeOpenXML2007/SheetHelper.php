@@ -80,8 +80,12 @@ final class SheetHelper
             if(is_numeric($cell)) {
                 $out .= '><v>' . $cell . '</v></c>' . MyWriter::EOL;
             } else {
-                $sharedStringId = $this->sharedStrings->writeString($cell);
-                $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
+                if (empty($cell)) {
+                    $out .= '/>' . MyWriter::EOL;
+                } else {
+                    $sharedStringId = $this->sharedStrings->writeString($cell);
+                    $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
+                }
             }
             $columnId++;
         }
