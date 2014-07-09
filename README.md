@@ -39,10 +39,11 @@ Create a new document and close it after you done.
 <?php
 use Seine\Seine;
 
-$seine = new Seine(array('writer' => 'ooxml2007')); // writer options are: csv, ooxml2007, oxml2003
+// writer options are: csv, ooxml2007, oxml2003
+$seine = new Seine(array('writer' => 'ooxml2007'));
 $doc = $seine->newDocument('example.xlsx');
 
-// Add rows and styles
+// add rows and styles...
 
 $doc->close();
 ?>
