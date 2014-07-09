@@ -36,6 +36,7 @@ Examples
 Create a new document and close it after you done.
 
     ``` php
+    <?php
     use Seine\Seine;
 
     $seine = new Seine(array('writer' => 'ooxml2007'));
@@ -49,6 +50,7 @@ Create a new document and close it after you done.
 Add 100.000 rows with 25 columns in ~25 seconds.
 
     ``` php
+    <?php
     $sheet = $doc->newSheet();
     for($i = 0; $i < 100000; $i++) {
         $sheet->addRow(range(0, 25));
@@ -58,6 +60,7 @@ Add 100.000 rows with 25 columns in ~25 seconds.
 Add styling to a row.
 
     ``` php
+    <?php
     $style = $doc->newStyle()
                  ->setFontBold(true)
                  ->setFontFamily('Aria')
