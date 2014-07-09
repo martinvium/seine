@@ -7,5 +7,6 @@ php:
 before_script:
   - wget -nc http://getcomposer.org/composer.phar
   - php composer.phar update
+  - mkdir tests/Seine/Writer/_tmp
 
 script: phpunit --configuration tests/phpunit.travis.xml
