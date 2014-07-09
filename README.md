@@ -67,7 +67,7 @@ $style = $doc->newStyle()
              ->setFontBold(true)
              ->setFontFamily('Aria')
              ->setFontSize('14');
-$row = $sheet->getRow(array('cell1', 'cell2'));
+$row = $seine->getRow(array('cell1', 'cell2'));
 $row->addStyle($style);
 ?>
 ```
