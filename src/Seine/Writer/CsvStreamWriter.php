@@ -45,6 +45,7 @@ class CsvStreamWriter implements Writer
     private $rowDelimiter = self::CRLF;
     private $fieldDelimiter = self::FIELD_DEL_DEFAULT;
     private $textDelimiter = self::TEXT_DEL_DEFAULT;
+    private $autoCloseStream = false;
 
     private $stream;
 
@@ -72,6 +73,11 @@ class CsvStreamWriter implements Writer
         $this->textDelimiter = $del;
     }
 
+    public function setAutoCloseStream($flag) 
+    {
+        $this->autoCloseStream = (bool)$flag;
+    }
+
     public function startBook(Book $book)
     {
 
@@ -79,7 +85,9 @@ class CsvStreamWriter implements Writer
 
     public function endBook(Book $book)
     {
-
+        if($this->autoCloseStream) {
+            fclose($this->stream);
+        }
     }
 
     public function startSheet(Book $book, Sheet $sheet)
@@ -114,5 +122,6 @@ class CsvStreamWriter implements Writer
         $this->setFieldDelimiter($config->getOption(self::OPT_FIELD_DELIMITER, $this->fieldDelimiter));
         $this->setTextDelimiter($config->getOption(self::OPT_TEXT_DELIMITER, $this->textDelimiter));
         $this->setRowDelimiter($config->getOption(self::OPT_ROW_DELIMITER, $this->rowDelimiter));
+        $this->setAutoCloseStream($config->getOption(Configuration::OPT_AUTO_CLOSE_STREAM, $this->autoCloseStream));
     }
 }

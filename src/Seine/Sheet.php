@@ -33,10 +33,10 @@ interface Sheet
     /**
      * Add a row to the sheet
      *
-     * @param Row $row
+     * @param Row|array $row
      * @return Sheet
      */
-    public function addRow(Row $row);
+    public function addRow($row);
 
     /**
      * Get the visible name of the sheet

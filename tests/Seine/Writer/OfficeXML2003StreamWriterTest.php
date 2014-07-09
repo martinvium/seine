@@ -41,7 +41,7 @@ class OfficeXML2003StreamWriterTest extends \PHPUnit_Framework_TestCase
 
     public function testMultipleSheetsWithStyles()
     {
-        $actual_file = __DIR__ . '/_files/actual_valid.xml';
+        $actual_file = __DIR__ . '/_tmp/actual_valid.xml';
 
         $fp = $this->makeStream($actual_file);
 
@@ -87,7 +87,7 @@ class OfficeXML2003StreamWriterTest extends \PHPUnit_Framework_TestCase
         $num_columns = 100;
 
         $start_timestamp = microtime(true);
-        $actual_file = __DIR__ . '/_files/performance.xml';
+        $actual_file = __DIR__ . '/_tmp/performance.xml';
 
         $fp = $this->makeStream($actual_file);
 

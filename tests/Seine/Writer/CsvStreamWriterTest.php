@@ -39,32 +39,52 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
      */
     private $config;
 
+    private $seine;
+
     public function setUp()
     {
         parent::setUp();
         $this->config = new Configuration();
         $this->config->setOption(Configuration::OPT_WRITER, 'CSVStreamWriter');
         $this->factory = new DOMFactory();
+        $this->seine = new \Seine\Seine(array('writer' => 'csv'));
     }
 
     public function testWritesValidFormat()
     {
-        $actual_file = __DIR__ . '/_files/actual_valid.csv';
+        $actual_file = __DIR__ . '/_tmp/actual_valid.csv';
 
-        $fp = $this->makeStream($actual_file);
-
-        $book = $this->factory->getConfiguredBook($fp, $this->config);
-        $sheet = $book->newSheet('more1');
+        $doc = $this->seine->newDocument($actual_file);
+        $sheet = $doc->newSheet('more1');
         for($i = 0; $i < 10; $i++) {
-            $sheet->addRow($this->factory->getRow(array(
+            $sheet->addRow(array(
                 'cell1',
                 'cell"2',
                 'cæøå3',
                 'cell4'
-            )));
+            ));
         }
-        $book->close();
+        $doc->close();
 
+        $this->assertFileEquals(__DIR__ . '/_files/expected_valid.csv', $actual_file);
+    }
+
+    public function testCustomStream()
+    {
+        $actual_file = __DIR__ . '/_tmp/actual_valid.csv';
+        $fp = fopen($actual_file, 'w');
+
+        $doc = $this->seine->newDocumentFromStream($fp);
+        $sheet = $doc->newSheet('more1');
+        for($i = 0; $i < 10; $i++) {
+            $sheet->addRow(array(
+                'cell1',
+                'cell"2',
+                'cæøå3',
+                'cell4'
+            ));
+        }
+        $doc->close();
         fclose($fp);
 
         $this->assertFileEquals(__DIR__ . '/_files/expected_valid.csv', $actual_file);
@@ -72,27 +92,23 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteAllowsCustomizingDelimiters()
     {
-        $actual_file = __DIR__ . '/_files/actual_custom_delimiters.csv';
+        $actual_file = __DIR__ . '/_tmp/actual_custom_delimiters.csv';
 
-        $fp = $this->makeStream($actual_file);
+        $this->seine->setOption(CsvStreamWriter::OPT_FIELD_DELIMITER, ';');
+        $this->seine->setOption(CsvStreamWriter::OPT_TEXT_DELIMITER, "'");
+        $this->seine->setOption(CsvStreamWriter::OPT_ROW_DELIMITER, 'NEWROW');
 
-        $this->config->setOption(CsvStreamWriter::OPT_FIELD_DELIMITER, ';');
-        $this->config->setOption(CsvStreamWriter::OPT_TEXT_DELIMITER, "'");
-        $this->config->setOption(CsvStreamWriter::OPT_ROW_DELIMITER, 'NEWROW');
-        $book = $this->factory->getConfiguredBook($fp, $this->config);
-
-        $sheet = $book->newSheet('more1');
+        $doc = $this->seine->newDocument($actual_file);
+        $sheet = $doc->newSheet('more1');
         for($i = 0; $i < 10; $i++) {
-            $sheet->addRow($this->factory->getRow(array(
+            $sheet->addRow(array(
                 'cell1',
                 'ce"2',
                 'cæøå3',
                 'ce\'4'
-            )));
+            ));
         }
-        $book->close();
-
-        fclose($fp);
+        $doc->close();
 
         $this->assertFileEquals(__DIR__ . '/_files/expected_custom_delimiters.csv', $actual_file);
     }
@@ -110,22 +126,14 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $start_timestamp = microtime(true);
         $actual_file = __DIR__ . '/_files/performance.csv';
 
-        $fp = $this->makeStream($actual_file);
-
-        $book = $this->factory->getConfiguredBook($fp, $this->config);
-        $sheet = $book->newSheet('more1');
+        $doc = $this->seine->newDocument($actual_file);
+        $sheet = $doc->newSheet('more1');
         for($i = 0; $i < $num_rows; $i++) {
-            $sheet->addRow($this->factory->getRow(range(0, $num_columns)));
+            $sheet->addRow(range(0, $num_columns));
         }
-        $book->close();
-        fclose($fp);
+        $doc->close();
 
         $this->assertLessThan($memory_limit, memory_get_peak_usage(true), 'memory limit reached');
         $this->assertLessThan($time_limit_seconds, (microtime(true) - $start_timestamp), 'time limit reached');
-    }
-
-    private function makeStream($filename)
-    {
-        return fopen($filename, 'w');
     }
 }

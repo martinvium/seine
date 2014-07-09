@@ -44,13 +44,13 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
         $this->config = new Configuration;
         $this->config->setOption(Configuration::OPT_WRITER, 'OfficeOpenXML2007StreamWriter');
-        $this->config->setOption(Configuration::OPT_TEMP_DIR, __DIR__ . '/_files');
+        $this->config->setOption(Configuration::OPT_TEMP_DIR, __DIR__ . '/_tmp');
         $this->factory = DOMFactory::FromConfig($this->config);
     }
     
     public function testMultipleSheetsWithStyles()
     {
-        $actual_file = __DIR__ . '/_files/actual_valid.xlsx';
+        $actual_file = __DIR__ . '/_tmp/actual_valid.xlsx';
         
         $fp = $this->makeStream($actual_file);
         
@@ -82,7 +82,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
 
     public function testNonLinearSheetAddingOfRows()
     {
-        $actual_file = __DIR__ . '/_files/multi_sheet_write.xlsx';
+        $actual_file = __DIR__ . '/_tmp/multi_sheet_write.xlsx';
 
         $fp = $this->makeStream($actual_file);
 
@@ -114,7 +114,7 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         $num_columns = 25;
         
         $start_timestamp = microtime(true);
-        $actual_file = __DIR__ . '/_files/performance.xlsx';
+        $actual_file = __DIR__ . '/_tmp/performance.xlsx';
         
         $fp = $this->makeStream($actual_file);
         

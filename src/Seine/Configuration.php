@@ -34,6 +34,7 @@ class Configuration
 {
     const OPT_WRITER = 'Configuration::OPT_WRITER';
     const OPT_TEMP_DIR = 'Configuration::OPT_TEMP_DIR';
+    const OPT_AUTO_CLOSE_STREAM = 'Configuration::OPT_AUTO_CLOSE_STREAM';
 
     private $options = array();
 
