@@ -1,16 +1,21 @@
 Seine
 =====
 
+[![Build Status](https://travis-ci.org/martinvium/seine.svg)](https://travis-ci.org/martinvium/seine)
+
 Write spreadsheets of various formats to a stream
 
 Low memory, high performance library for writing large spreadsheets in various standard formats. 
 Only a small subset of features are included, which means row level styling and right now, no 
 formulas either.
 
-Memory: Everything is written to disk, so memory overhead is pretty much zero.
+Memory: Everything is written to disk (stream), so memory overhead is pretty much zero.
 Speed:  It's pretty damn fast! However because of the memory constraint, it's not mindblowing.
 
-Note: This is still only ALPHA/BETA quality.
+Stability
+---------
+
+This is still only ALPHA/BETA quality.
 
 Dependencies
 ------------
