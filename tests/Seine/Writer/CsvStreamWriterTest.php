@@ -124,7 +124,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $num_columns = 100;
 
         $start_timestamp = microtime(true);
-        $actual_file = __DIR__ . '/_files/performance.csv';
+        $actual_file = __DIR__ . '/_tmp/performance.csv';
 
         $doc = $this->seine->newDocument($actual_file);
         $sheet = $doc->newSheet('more1');
