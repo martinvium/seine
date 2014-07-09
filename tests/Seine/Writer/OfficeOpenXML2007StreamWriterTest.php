@@ -61,13 +61,14 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
             $sheet->addRow(array(
                 'cell1',
                 'ceæøåll2',
-                rand(100, 10000),
+                543523,
                 'cell4'
             ));
         }
         $doc->close();
 
-        throw new \Exception('no assertions...');
+        $expectedDir = __DIR__ . '/_files/expected_valid_xlsx/';
+        $this->assertZipEqualsActual($expectedDir, $actual_file);
     }
 
     public function testNonLinearSheetAddingOfRows()
@@ -86,10 +87,10 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         for($i = 0; $i < 10; $i++) {
             $sheet1->addRow(range(0, 10));
         }
-        
         $doc->close();
 
-        throw new \Exception('no assertions...');
+        $expectedDir = __DIR__ . '/_files/multi_sheet_write_xlsx/';
+        $this->assertZipEqualsActual($expectedDir, $actual_file);
     }
 
     /**
@@ -114,5 +115,34 @@ class OfficeOpenXML2007StreamWriterTest extends \PHPUnit_Framework_TestCase
         
         $this->assertLessThan($memory_limit, memory_get_peak_usage(true), 'memory limit reached');
         $this->assertLessThan($time_limit_seconds, (microtime(true) - $start_timestamp), 'time limit reached');
+    }
+
+
+// HELPERS
+
+    private function assertZipEqualsActual($expectedDir, $filename, $skipFiles = array('docProps/core.xml')) 
+    {
+        $zip = $this->extractZip($filename);
+        for($i = 0; $i < $zip->numFiles; $i++) {
+            $expectedFilename = $zip->getNameIndex($i);
+
+            if(in_array($expectedFilename, $skipFiles)) {
+                continue;
+            }
+
+            $actualContent = $zip->getFromIndex($i);
+            $this->assertStringEqualsFile($expectedDir . $expectedFilename, $actualContent);
+        }
+        $zip->close();
+    }
+
+    private function extractZip($filename) 
+    {
+        $zip = new \ZipArchive();
+        if($zip->open($filename) === true) {
+            return $zip;
+        } else {
+            $this->fail('failed to open zip file: ' . $filename);
+        }
     }
 }
