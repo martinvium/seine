@@ -35,36 +35,39 @@ Examples
 
 Create a new document and close it after you done.
 
-    ``` php
-    <?php
-    use Seine\Seine;
+```php
+<?php
+use Seine\Seine;
 
-    $seine = new Seine(array('writer' => 'ooxml2007'));
-    $doc = $seine->newDocument('example.xlsx');
+$seine = new Seine(array('writer' => 'ooxml2007'));
+$doc = $seine->newDocument('example.xlsx');
 
-    // Add rows and styles
+// Add rows and styles
 
-    $doc->close();
-    ```
+$doc->close();
+?>
+```
 
 Add 100.000 rows with 25 columns in ~25 seconds.
 
-    ``` php
-    <?php
-    $sheet = $doc->newSheet();
-    for($i = 0; $i < 100000; $i++) {
-        $sheet->addRow(range(0, 25));
-    }
-    ```
+```php
+<?php
+$sheet = $doc->newSheet();
+for($i = 0; $i < 100000; $i++) {
+    $sheet->addRow(range(0, 25));
+}
+?>
+```
 
 Add styling to a row.
 
-    ``` php
-    <?php
-    $style = $doc->newStyle()
-                 ->setFontBold(true)
-                 ->setFontFamily('Aria')
-                 ->setFontSize('14');
-    $row = $sheet->getRow(array('cell1', 'cell2'));
-    $row->addStyle($style);
-    ```
+```php
+<?php
+$style = $doc->newStyle()
+             ->setFontBold(true)
+             ->setFontFamily('Aria')
+             ->setFontSize('14');
+$row = $sheet->getRow(array('cell1', 'cell2'));
+$row->addStyle($style);
+?>
+```
