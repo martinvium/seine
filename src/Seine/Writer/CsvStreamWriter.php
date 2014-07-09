@@ -122,6 +122,5 @@ class CsvStreamWriter implements Writer
         $this->setFieldDelimiter($config->getOption(self::OPT_FIELD_DELIMITER, $this->fieldDelimiter));
         $this->setTextDelimiter($config->getOption(self::OPT_TEXT_DELIMITER, $this->textDelimiter));
         $this->setRowDelimiter($config->getOption(self::OPT_ROW_DELIMITER, $this->rowDelimiter));
-        $this->setAutoCloseStream($config->getOption(Configuration::OPT_AUTO_CLOSE_STREAM, $this->autoCloseStream));
     }
 }

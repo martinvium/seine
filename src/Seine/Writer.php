@@ -35,4 +35,6 @@ interface Writer
     public function endBook(Book $book);
 
     public function setConfig(Configuration $config);
+
+    public function setAutoCloseStream($flag);
 }

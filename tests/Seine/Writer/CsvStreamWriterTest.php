@@ -20,33 +20,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Seine\Writer;
+namespace Seine\Tests\Writer;
+
+use Seine\Writer\CsvStreamWriter;
 
 require_once(dirname(dirname(__DIR__)) . '/bootstrap.php');
 
-use Seine\Parser\DOM\DOMFactory;
-use Seine\Configuration;
-
 class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var DOMFactory
-     */
-    private $factory;
-
-    /**
-     * @var Configuration
-     */
-    private $config;
-
     private $seine;
 
     public function setUp()
     {
         parent::setUp();
-        $this->config = new Configuration();
-        $this->config->setOption(Configuration::OPT_WRITER, 'CSVStreamWriter');
-        $this->factory = new DOMFactory();
         $this->seine = new \Seine\Seine(array('writer' => 'csv'));
     }
 
@@ -55,15 +41,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $actual_file = __DIR__ . '/_tmp/actual_valid.csv';
 
         $doc = $this->seine->newDocument($actual_file);
-        $sheet = $doc->newSheet('more1');
-        for($i = 0; $i < 10; $i++) {
-            $sheet->addRow(array(
-                'cell1',
-                'cell"2',
-                'cæøå3',
-                'cell4'
-            ));
-        }
+        $this->createSheetWith10Rows($doc);
         $doc->close();
 
         $this->assertFileEquals(__DIR__ . '/_files/expected_valid.csv', $actual_file);
@@ -75,15 +53,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $fp = fopen($actual_file, 'w');
 
         $doc = $this->seine->newDocumentFromStream($fp);
-        $sheet = $doc->newSheet('more1');
-        for($i = 0; $i < 10; $i++) {
-            $sheet->addRow(array(
-                'cell1',
-                'cell"2',
-                'cæøå3',
-                'cell4'
-            ));
-        }
+        $this->createSheetWith10Rows($doc);
         $doc->close();
         fclose($fp);
 
@@ -99,15 +69,7 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
         $this->seine->setOption(CsvStreamWriter::OPT_ROW_DELIMITER, 'NEWROW');
 
         $doc = $this->seine->newDocument($actual_file);
-        $sheet = $doc->newSheet('more1');
-        for($i = 0; $i < 10; $i++) {
-            $sheet->addRow(array(
-                'cell1',
-                'ce"2',
-                'cæøå3',
-                'ce\'4'
-            ));
-        }
+        $this->createSheetWith10Rows($doc);
         $doc->close();
 
         $this->assertFileEquals(__DIR__ . '/_files/expected_custom_delimiters.csv', $actual_file);
@@ -135,5 +97,18 @@ class CsvStreamWriterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertLessThan($memory_limit, memory_get_peak_usage(true), 'memory limit reached');
         $this->assertLessThan($time_limit_seconds, (microtime(true) - $start_timestamp), 'time limit reached');
+    }
+
+    private function createSheetWith10Rows($doc) 
+    {
+        $sheet = $doc->newSheet('more1');
+        for($i = 0; $i < 10; $i++) {
+            $sheet->addRow(array(
+                'cell1',
+                'ce"2',
+                'cæøå3',
+                'ce\'4'
+            ));
+        }
     }
 }

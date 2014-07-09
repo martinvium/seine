@@ -31,7 +31,9 @@ class Seine
   private $factory;
 
   private $writerMap = array(
-    'csv' => 'CSVStreamWriter'
+    'csv'       => 'CSVStreamWriter',
+    'ooxml2007' => 'OfficeOpenXML2007StreamWriter',
+    'oxml2003'  => 'OfficeXML2003StreamWriter'
   );
 
   public function __construct($options = array()) 
@@ -57,6 +59,14 @@ class Seine
    */
   public function newDocumentFromStream($fp) {
     return $this->factory->getConfiguredBook($fp, $this->config);
+  }
+
+  /**
+   * @return Row
+   */
+  public function getRow(array $cells)
+  {
+    return $this->factory->getRow($cells);
   }
 
   public function setOption($name, $value)

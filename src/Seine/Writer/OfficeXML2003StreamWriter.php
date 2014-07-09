@@ -39,6 +39,8 @@ class OfficeXML2003StreamWriter implements Writer
 
     private $sheets = array();
 
+    private $autoCloseStream = false;
+
     public function __construct($stream)
     {
         if(! is_resource($stream)) {
@@ -76,6 +78,11 @@ class OfficeXML2003StreamWriter implements Writer
         $this->sheets[$sheet->getId()] = $dataSheet;
         $out = '    <Worksheet ss:Name="' . $this->escape($sheet->getName()) . '"><Table>' . self::EOL;
         $this->writeStream($dataSheet->getStream(), $out);
+    }
+
+    public function setAutoCloseStream($flag) 
+    {
+        $this->autoCloseStream = (bool)$flag;
     }
 
     /**

@@ -15,7 +15,7 @@ Speed:  It's pretty damn fast! However because of the memory constraint, it's no
 Stability
 ---------
 
-This is still only ALPHA/BETA quality.
+This library is ALPHA/BETA quality.
 
 Dependencies
 ------------
@@ -33,55 +33,35 @@ Writers
 Examples
 --------
 
-Create a configured Book and close after you done.
+Create a new document and close it after you done.
 
     ``` php
-    use Seine\Parser\DOM\DOMFactory;
-    use Seine\Configuration;
+    use Seine\Seine;
 
-    $fp = fopen('example.xlsx', 'w');
-    $config = new Configuration();
-    $config->setWriter(Configuration::WRITER, 'OfficeOpenXml2007StreamWriter');
-    $factory = new DOMFactory($config);
-    $book = $factory->getConfiguredBook();
+    $seine = new Seine(array('writer' => 'ooxml2007'));
+    $doc = $seine->newDocument('example.xlsx');
 
     // Add rows and styles
 
-    $book->close();
-    fclose($fp);
+    $doc->close();
     ```
 
 Add 100.000 rows with 25 columns in ~25 seconds.
 
     ``` php
-    $sheet = $book->newSheet();
+    $sheet = $doc->newSheet();
     for($i = 0; $i < 100000; $i++) {
-        $sheet->addRow($this->factory->getRow(range(0, 25)));
+        $sheet->addRow(range(0, 25));
     }
     ```
 
-Add styling to a Row.
+Add styling to a row.
 
     ``` php
-    $style = $book->newStyle()
-                  ->setFontBold(true)
-                  ->setFontFamily('Aria')
-                  ->setFontSize('14');
-    $row = $factory->getRow(array('cell1', 'cell2'));
+    $style = $doc->newStyle()
+                 ->setFontBold(true)
+                 ->setFontFamily('Aria')
+                 ->setFontSize('14');
+    $row = $sheet->getRow(array('cell1', 'cell2'));
     $row->addStyle($style);
-    ```
-
-Custom Compressor for OOXML
-
-    ``` php
-    class CommandLineCompressor implements Seine\Compressor
-    {
-        public function compressDir($source, $destination)
-        {
-            exec('zip ' . escapeshellarg($source) . escapeshellarg($destination)); // Most likely does not work :)
-        }
-    }
-
-    $compressor = new CommandLineCompressor;
-    $writer = new Seine\Writer\OfficeOpenXML2007StreamWriter($fp, $compressor);
     ```

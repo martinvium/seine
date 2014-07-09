@@ -40,6 +40,8 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
     const OPT_TEMP_DIR = Configuration::OPT_TEMP_DIR;
 
+    private $autoCloseStream = false;
+
     /**
      * @var Style
      */
@@ -105,7 +107,12 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
         $this->copyZipToStream();
         $this->cleanWorkingFiles();
     }
-    
+
+    public function setAutoCloseStream($flag) 
+    {
+        $this->autoCloseStream = (bool)$flag;
+    }
+
     private function createDataRelationsFile(array $sheets)
     {
         $data = '<?xml version="1.0" encoding="UTF-8"?>
