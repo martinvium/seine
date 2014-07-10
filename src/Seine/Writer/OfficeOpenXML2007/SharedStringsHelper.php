@@ -27,6 +27,12 @@ use Seine\IOException;
 
 final class SharedStringsHelper
 {
+    /**
+     * This number must be really big so that the no generated file will have more strings than that.
+     * If the strings number goes above, characters will be overwritten in an unwanted way and will corrupt the file.
+     */
+    const DEFAULT_STRINGS_COUNT_PART = 'count="9999999999999" uniqueCount="9999999999999"';
+
     private $filename;
     private $id = 0;
     private $stream;
@@ -45,10 +51,10 @@ final class SharedStringsHelper
         }
 
         // NOTE: we leave extra space, so we can fseek and put in the correct count and uniqueCount later
-        $firstPartOfHeader = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . MyWriter::EOL . '<sst';
+        $firstPartOfHeader = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . MyWriter::EOL . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ';
         $this->headerInsertPosition = strlen($firstPartOfHeader);
         fwrite($this->stream, $firstPartOfHeader);
-        fwrite($this->stream, ' count="9999999" uniqueCount="9999999" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . MyWriter::EOL);
+        fwrite($this->stream, self::DEFAULT_STRINGS_COUNT_PART . '>' . MyWriter::EOL);
     }
     
     /**
@@ -66,8 +72,12 @@ final class SharedStringsHelper
     {
         $stringCount = $this->id;
         fwrite($this->stream, '</sst>');
+
+        // Replace the default strings count with the actual number of shared strings in the file header
+        $defaultStringsCountPartLength = strlen(self::DEFAULT_STRINGS_COUNT_PART);
         fseek($this->stream, $this->headerInsertPosition);
-        fwrite($this->stream, sprintf("%-38s", ' count="' . $stringCount . '" uniqueCount="' . $stringCount . '"'));
+        fwrite($this->stream, sprintf("%-{$defaultStringsCountPartLength}s", 'count="' . $stringCount . '" uniqueCount="' . $stringCount . '"'));
+
         fclose($this->stream);
     }
 }

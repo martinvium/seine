@@ -37,9 +37,9 @@ final class ZipArchiveCompressor implements Compressor
         $prefix = '';
         if($localname) {
             $prefix = $localname . '/';
+            $zip->addEmptyDir($localname);
         }
         
-        $zip->addEmptyDir($localname); 
         $iter = new \RecursiveDirectoryIterator($filename, \FilesystemIterator::SKIP_DOTS); 
 
         foreach ($iter as $fileinfo) { 
