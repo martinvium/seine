@@ -24,8 +24,59 @@ namespace Seine\Writer\OfficeOpenXML2007;
 
 final class Utils
 {
-    static public function escape($string)
+    /** @var string[] Control characters to be escaped */
+    private static $controlCharactersSet;
+
+    /**
+     * Escapes the given string to make it compatible with Excel
+     *
+     * @param string $string The string to be escaped
+     * @return string
+     */
+    public static function escape($string)
     {
-        return htmlspecialchars($string, ENT_QUOTES, 'utf-8');
+        $escapedString = self::escapeControlCharacters($string);
+        $escapedString = htmlspecialchars($escapedString, ENT_QUOTES, 'utf-8');
+
+        return $escapedString;
+    }
+
+    /**
+     * Returns the control characters array. Builds it once and cache it.
+     *
+     * @return string[]
+     */
+    private static function getControlCharactersSet()
+    {
+        if (!self::$controlCharactersSet) {
+            // Build the array if not already built
+            for ($i = 0; $i <= 31; ++$i) {
+                if ($i != 9 && $i != 10 && $i != 13) {
+                    $escapedValue = '_x' . sprintf('%04s' , strtoupper(dechex($i))) . '_';
+                    $rawValue = chr($i);
+                    self::$controlCharactersSet[$escapedValue] = $rawValue;
+                }
+            }
+        }
+
+        return self::$controlCharactersSet;
+    }
+
+    /**
+     * Converts PHP control characters from the given string to OpenXML escaped control characters
+     *
+     * Control characters are stored directly in the shared-strings table.
+     * Characters that cannot be represented in XML are encoded using the following escape sequence:
+     * _xHHHH_ where H represents a hexadecimal character in the character's value...
+     * So you could end up with something like _x0008_ in a string (either in a cell value (<v>)
+     * element or in the shared string <t> element.
+     *
+     * @param string $string String to escape
+     * @return string
+     */
+    private static function escapeControlCharacters($string)
+    {
+        $controlCharactersSet = self::getControlCharactersSet();
+        return str_replace(array_values($controlCharactersSet), array_keys($controlCharactersSet), $string);
     }
 }
