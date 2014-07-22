@@ -48,6 +48,7 @@ final class SheetHelper
     private $filename;
     private $stream;
     private $rowId = 0;
+    private $shouldUseInlineStrings = false;
 
     public function __construct(Sheet $sheet, SharedStringsHelper $sharedStrings, Style $defaultStyle, $filename)
     {
@@ -55,6 +56,20 @@ final class SheetHelper
         $this->sharedStrings = $sharedStrings;
         $this->defaultStyle = $defaultStyle;
         $this->filename = $filename;
+    }
+
+    /**
+     * This function should be used if one plans to generate a huge amount of shared strings.
+     * If the sharedStrings.xml file is too big, Excel goes Out Of Memory and crashes.
+     * This option allows to choose between using shared strings (worse for memory) or inline strings (better for memory).
+     *
+     * @param bool $shouldUseInlineStrings
+     * @return SheetHelper
+     */
+    public function setShouldUseInlineStrings($shouldUseInlineStrings)
+    {
+        $this->shouldUseInlineStrings = $shouldUseInlineStrings;
+        return $this;
     }
 
     public function start()
@@ -83,8 +98,13 @@ final class SheetHelper
                 if (empty($cell)) {
                     $out .= '/>' . MyWriter::EOL;
                 } else {
-                    $sharedStringId = $this->sharedStrings->writeString($cell);
-                    $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
+                    if ($this->shouldUseInlineStrings) {
+                        // Use inline string to be more memory efficient
+                        $out .= ' t="inlineStr"><is><t>' . $cell . '</t></is></c>' . MyWriter::EOL;
+                    } else {
+                        $sharedStringId = $this->sharedStrings->writeString($cell);
+                        $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
+                    }
                 }
             }
             $columnId++;

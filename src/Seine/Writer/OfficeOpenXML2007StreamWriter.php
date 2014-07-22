@@ -8,10 +8,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,6 +39,7 @@ use Seine\Configuration;
 final class OfficeOpenXML2007StreamWriter extends WriterBase
 {
     const OPT_TEMP_DIR = Configuration::OPT_TEMP_DIR;
+    const OPT_USE_INLINE_STRINGS = 'OfficeOpenXML2007StreamWriter::OPT_USE_INLINE_STRINGS';
 
     /**
      * @var Style
@@ -58,6 +59,7 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
     public function setConfig(Configuration $config)
     {
         $this->setTempDir($config->getOption(self::OPT_TEMP_DIR, $this->tempDir));
+        $this->shouldUseInlineStrings = $config->getOption(self::OPT_USE_INLINE_STRINGS, false);
     }
 
     public function startBook(Book $book)
@@ -74,26 +76,27 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
         $this->sharedStrings = new SharedStringsHelper($filename);
         $this->sharedStrings->start();
     }
-    
+
     public function startSheet(Book $book, Sheet $sheet)
     {
         $filename = $this->sheetDir . DIRECTORY_SEPARATOR . 'sheet' . $sheet->getId() . '.xml';
         $this->createEmptyWorkingFile($filename);
         $sheetHelper = new SheetHelper($sheet, $this->sharedStrings, $this->defaultStyle, $filename);
+        $sheetHelper->setShouldUseInlineStrings($this->shouldUseInlineStrings);
         $sheetHelper->start();
         $this->sheetHelpers[$sheet->getId()] = $sheetHelper;
     }
-    
+
     public function writeRow(Sheet $sheet, Row $row)
     {
         $this->sheetHelpers[$sheet->getId()]->writeRow($row);
     }
-    
+
     public function endSheet(Book $book, Sheet $sheet)
     {
         $this->sheetHelpers[$sheet->getId()]->end();
     }
-    
+
     public function endBook(Book $book)
     {
         $this->sharedStrings->end();
@@ -105,37 +108,37 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
         $this->copyZipToStream();
         $this->cleanWorkingFiles();
     }
-    
+
     private function createDataRelationsFile(array $sheets)
     {
         $data = '<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
     <Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
     <Relationship Id="rIdSharedStrings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>' . self::EOL;
-        
+
         /* @var Sheet $sheet */
         foreach($sheets as $sheet) {
             $data .= '    <Relationship Id="rId' . $sheet->getId() . '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' . $sheet->getId() . '.xml"/>' . self::EOL;
         }
-        
+
         $data .= '</Relationships>';
-        
+
         $filename = $this->dataRelsDir . DIRECTORY_SEPARATOR . 'workbook.xml.rels';
         $this->createWorkingFile($filename, $data);
     }
-    
+
     private function createContentTypesFile(array $sheets)
     {
         $data = '<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
     <Override PartName="/_rels/.rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
     <Override PartName="/xl/_rels/workbook.xml.rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' . self::EOL;
-    
+
         /* @var Sheet $sheet */
         foreach($sheets as $sheet) {
             $data .= '    <Override PartName="/xl/worksheets/sheet' . $sheet->getId() . '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' . self::EOL;
         }
-        
+
         $data .= '    <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
     <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
     <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
@@ -146,27 +149,27 @@ final class OfficeOpenXML2007StreamWriter extends WriterBase
         $contentTypesFile = $this->baseDir . DIRECTORY_SEPARATOR . '[Content_Types].xml';
         $this->createWorkingFile($contentTypesFile, $data);
     }
-    
+
     private function createBookFile(array $sheets)
     {
         $data = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
     <sheets>' . self::EOL;
-        
+
         /* @var Sheet $sheet */
         foreach($sheets as $sheet) {
             $data .= '        <sheet name="' . $this->escape($sheet->getName()) . '" sheetId="' . $sheet->getId() . '" r:id="rId' . $sheet->getId() . '"/>' . self::EOL;
         }
-        
+
         $data .= '    </sheets>
 </workbook>';
-        
+
         $filename = $this->dataDir . DIRECTORY_SEPARATOR . 'workbook.xml';
         $this->createWorkingFile($filename, $data);
     }
-    
+
     /**
-     * @param Style[] $styles 
+     * @param Style[] $styles
      */
     private function createStylesFile(array $styles)
     {
