@@ -100,7 +100,7 @@ final class SheetHelper
                 } else {
                     if ($this->shouldUseInlineStrings) {
                         // Use inline string to be more memory efficient
-                        $out .= ' t="inlineStr"><is><t>' . $cell . '</t></is></c>' . MyWriter::EOL;
+                        $out .= ' t="inlineStr"><is><t>' . Utils::escape($cell) . '</t></is></c>' . MyWriter::EOL;
                     } else {
                         $sharedStringId = $this->sharedStrings->writeString($cell);
                         $out .= ' t="s"><v>' . $sharedStringId . '</v></c>' . MyWriter::EOL;
